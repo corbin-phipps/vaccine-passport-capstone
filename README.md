@@ -24,7 +24,7 @@ To clear old network and start fresh, run this command
 
 Start up the network
 
-`./network.sh up createChannel mychannel -ca`
+`./network.sh up createChannel -c mychannel -ca`
 
 
 Deploy chaincode
