@@ -1,6 +1,17 @@
 # Vaccine Passport Capstone
 
 ## How to Run
+
+For the first time, clone the repo
+
+`git clone https://gitlab.cs.washington.edu/cmp99/vaccine-passport-capstone.git`
+
+
+Enter the code directory
+
+`cd vaccine-passport-capstone`
+
+
 In a terminal, navigate to the test network directory
 
 `cd test-network`
