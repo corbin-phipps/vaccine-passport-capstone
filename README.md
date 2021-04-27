@@ -7,12 +7,12 @@ For the first time, clone the repo
 `git clone https://gitlab.cs.washington.edu/cmp99/vaccine-passport-capstone.git`
 
 
-Enter the code directory
+In a terminal, enter the code directory
 
 `cd vaccine-passport-capstone`
 
 
-In a terminal, navigate to the test network directory
+Navigate to the test network directory
 
 `cd test-network`
 
