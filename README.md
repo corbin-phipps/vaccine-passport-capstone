@@ -22,6 +22,16 @@ Run this command to shut down old network, start up fresh new network
 `./start.sh`
 
 
+In a separate terminal, navigate to the application code directory
+
+`cd application-javascript`
+
+
+Run the application
+
+`node app.js`
+
+
 ## Running Demo with Multiple Nodes
 
 Open 3 terminals (network admin, peer0.org1, peer0.org2)
