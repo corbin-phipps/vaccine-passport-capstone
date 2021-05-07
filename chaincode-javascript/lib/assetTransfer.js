@@ -38,13 +38,13 @@ class AssetTransfer extends Contract {
     }
 
     // CreateAsset issues a new asset to the world state with given details.
-    async CreateAsset(ctx, id, color, size, owner, appraisedValue) {
+    async CreateAsset(ctx, id, owner, brand, site, date) {
         const asset = {
             ID: id,
-            Color: color,
-            Size: size,
             Owner: owner,
-            AppraisedValue: appraisedValue,
+            VaccineBrand: brand,
+            VaccinationSite: site,
+            DateOfFirstDose: date,
         };
         ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
         return JSON.stringify(asset);
@@ -60,7 +60,7 @@ class AssetTransfer extends Contract {
     }
 
     // UpdateAsset updates an existing asset in the world state with provided parameters.
-    async UpdateAsset(ctx, id, color, size, owner, appraisedValue) {
+    async UpdateAsset(ctx, id, owner, brand, site, date) {
         const exists = await this.AssetExists(ctx, id);
         if (!exists) {
             throw new Error(`The asset ${id} does not exist`);
@@ -69,10 +69,10 @@ class AssetTransfer extends Contract {
         // overwriting original asset with new asset
         const updatedAsset = {
             ID: id,
-            Color: color,
-            Size: size,
             Owner: owner,
-            AppraisedValue: appraisedValue,
+            VaccineBrand: brand,
+            VaccinationSite: site,
+            DateOfFirstDose: date,
         };
         return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedAsset)));
     }
