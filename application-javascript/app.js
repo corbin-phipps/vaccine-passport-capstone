@@ -175,16 +175,20 @@ async function main() {
 					let vaccineTypeArr = kvs[2].split(":");
 					let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
 
-					let vaccineAdminArr = kvs[3].split(":");
-					let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
+					if (!vaccineType.equals("Pfizer") || !vaccineType.equals("Moderna")) {
+						console.log(vaccineType + " only requires one dose.")
+					} else {
+						let vaccineAdminArr = kvs[3].split(":");
+						let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
 
-					let dateofFirstDoseArr = kvs[5].split(":");
-					let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+						let dateofFirstDoseArr = kvs[5].split(":");
+						let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
 
-					let vaccineSite2 = await ask('Second vaccine site? ');
-					let vaccineDate2 = await ask('Second vaccine date? ');
-					
-					await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+						let vaccineSite2 = await ask('Second vaccine site? ');
+						let vaccineDate2 = await ask('Second vaccine date? ');
+						
+						await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+					}
 				} else if (action === 'R') {
 					// Prompt the user for the username they're searching for
 					let user = await ask('Username? ');
