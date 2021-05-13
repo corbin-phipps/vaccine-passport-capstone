@@ -156,38 +156,34 @@ async function main() {
 
 					// Check if the user exists in the blockchain database
 					let userExists = await contract.evaluateTransaction('AssetExists', user);
-					while (userExists.toString() === 'false') {
-						console.log("User \"" + user + "\" does not exist. Please try again. \n");
-						
-						// Prompt the user for the username they're searching for again
-						user = await ask('Username? ');
-						userExists = await contract.evaluateTransaction('ReadAsset', user);
-					}
-
-					let result = await contract.evaluateTransaction('ReadAsset', user);
-					let result_str = result.toString();
-
-					const kvs = result_str.split(',');
-
-					let ownerArr = kvs[1].split(":");
-					let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
-
-					let vaccineTypeArr = kvs[2].split(":");
-					let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
-
-					if (!vaccineType.equals("Pfizer") || !vaccineType.equals("Moderna")) {
-						console.log(vaccineType + " only requires one dose.")
+					if (userExists.toString() === 'false') {
+						console.log("User \"" + user + "\" does not exist.\n");
 					} else {
-						let vaccineAdminArr = kvs[3].split(":");
-						let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
+						let result = await contract.evaluateTransaction('ReadAsset', user);
+						let result_str = result.toString();
 
-						let dateofFirstDoseArr = kvs[5].split(":");
-						let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+						const kvs = result_str.split(',');
 
-						let vaccineSite2 = await ask('Second vaccine site? ');
-						let vaccineDate2 = await ask('Second vaccine date? ');
-						
-						await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+						let ownerArr = kvs[1].split(":");
+						let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
+
+						let vaccineTypeArr = kvs[2].split(":");
+						let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
+
+						if (!vaccineType.equals("Pfizer") || !vaccineType.equals("Moderna")) {
+							console.log(vaccineType + " only requires one dose.")
+						} else {
+							let vaccineAdminArr = kvs[3].split(":");
+							let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
+
+							let dateofFirstDoseArr = kvs[5].split(":");
+							let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+
+							let vaccineSite2 = await ask('Second vaccine site? ');
+							let vaccineDate2 = await ask('Second vaccine date? ');
+							
+							await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+						}
 					}
 				} else if (action === 'R') {
 					// Prompt the user for the username they're searching for
@@ -195,17 +191,13 @@ async function main() {
 
 					// Check if the user exists in the blockchain database
 					let userExists = await contract.evaluateTransaction('AssetExists', user);
-					while (userExists.toString() === 'false') {
-						console.log("User \"" + user + "\" does not exist. Please try again. \n");
-						
-						// Prompt the user for the username they're searching for again
-						user = await ask('Username? ');
-						userExists = await contract.evaluateTransaction('ReadAsset', user);
+					if (userExists.toString() === 'false') {
+						console.log("User \"" + user + "\" does not exist.\n");
+					} else {
+						// Return query associated with the given user, if the user exists
+						let result = await contract.evaluateTransaction('ReadAsset', user);
+						console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 					}
-					
-					// Return query associated with the given user, if the user exists
-					let result = await contract.evaluateTransaction('ReadAsset', user);
-					console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 				} else {
 					console.log("Please enter C for create, A for add vaccine, R for read, or E for exit. \n")
 				}
