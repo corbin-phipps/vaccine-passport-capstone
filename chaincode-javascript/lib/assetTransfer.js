@@ -10,35 +10,6 @@ const { Contract } = require('fabric-contract-api');
 
 class AssetTransfer extends Contract {
 
-    async InitLedger(ctx) {
-        const assets = [
-            {
-                ID: 'vp1',
-                Owner: 'Alice',
-                VaccineType: 'Pfizer',
-                VaccineAdmin: 'CVS',
-                VaccineAdmin2: 'Fred Meyer',
-                DateOfFirstDose: '04-12-2021',
-                DateOfSecondDose: '04-26-2021',
-            },
-            {
-                ID: 'vp2',
-                Owner: 'Bob',
-                VaccineType: 'Moderna',
-                VaccineAdmin: 'UWMC',
-                VaccineAdmin2: '',
-                DateOfFirstDose: '04-26-2021',
-                DateOfSecondDose: '',
-            },
-        ];
-
-        for (const asset of assets) {
-            asset.docType = 'asset';
-            await ctx.stub.putState(asset.ID, Buffer.from(JSON.stringify(asset)));
-            console.info(`Asset ${asset.ID} initialized`);
-        }
-    }
-
     // CreateAsset issues a new asset to the world state with given details.
     async CreateAsset(ctx, id, owner, brand, site, site2, date, date2) {
         const asset = {

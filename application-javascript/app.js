@@ -170,7 +170,7 @@ async function main() {
 						let vaccineTypeArr = kvs[2].split(":");
 						let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
 
-						if (!vaccineType.equals("Pfizer") || !vaccineType.equals("Moderna")) {
+						if (vaccineType !== "Pfizer" || vaccineType !== "Moderna") {
 							console.log(vaccineType + " only requires one dose.")
 						} else {
 							let vaccineAdminArr = kvs[3].split(":");
