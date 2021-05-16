@@ -10,41 +10,16 @@ const { Contract } = require('fabric-contract-api');
 
 class AssetTransfer extends Contract {
 
-    async InitLedger(ctx) {
-        const assets = [
-            {
-                ID: 'vp1',
-                Owner: 'Alice',
-                VaccineType: 'Pfizer',
-                VaccineAdmin: 'CVS',
-                DateOfFirstDose: '04-12-2021',
-                DateOfSecondDose: '04-26-2021',
-            },
-            {
-                ID: 'vp2',
-                Owner: 'Bob',
-                VaccineType: 'Moderna',
-                VaccineAdmin: 'UWMC',
-                DateOfFirstDose: '04-26-2021',
-                DateOfSecondDose: '',
-            },
-        ];
-
-        for (const asset of assets) {
-            asset.docType = 'asset';
-            await ctx.stub.putState(asset.ID, Buffer.from(JSON.stringify(asset)));
-            console.info(`Asset ${asset.ID} initialized`);
-        }
-    }
-
     // CreateAsset issues a new asset to the world state with given details.
-    async CreateAsset(ctx, id, owner, brand, site, date) {
+    async CreateAsset(ctx, id, owner, brand, site, site2, date, date2) {
         const asset = {
             ID: id,
             Owner: owner,
             VaccineBrand: brand,
             VaccinationSite: site,
+            VaccinationSite2: site2,
             DateOfFirstDose: date,
+            DateOfSecondDose: date2
         };
         ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
         return JSON.stringify(asset);
@@ -60,7 +35,7 @@ class AssetTransfer extends Contract {
     }
 
     // UpdateAsset updates an existing asset in the world state with provided parameters.
-    async UpdateAsset(ctx, id, owner, brand, site, date) {
+    async UpdateAsset(ctx, id, owner, brand, site, site2, date, date2) {
         const exists = await this.AssetExists(ctx, id);
         if (!exists) {
             throw new Error(`The asset ${id} does not exist`);
@@ -72,7 +47,9 @@ class AssetTransfer extends Contract {
             Owner: owner,
             VaccineBrand: brand,
             VaccinationSite: site,
+            VaccinationSite2: site2,
             DateOfFirstDose: date,
+            DateOfSecondDose: date2
         };
         return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedAsset)));
     }

@@ -22,6 +22,20 @@ function prettyJSONString(inputString) {
 	return JSON.stringify(JSON.parse(inputString), null, 2);
 }
 
+// For console input
+const readline = require('readline').createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+// function that promises to ask a question and 
+// resolve to its answer
+function ask(questionText) {
+	return new Promise((resolve, reject) => {
+		readline.question(questionText, (input) => resolve(input) );
+	});
+}
+
 // pre-requisites:
 // - fabric-sample two organization test-network setup with two peers, ordering service,
 //   and 2 certificate authorities
@@ -114,63 +128,86 @@ async function main() {
 			// This type of transaction would only be run once by an application the first time it was started after it
 			// deployed the first time. Any updates to the chaincode deployed later would likely not need to run
 			// an "init" type function.
-			console.log('\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger');
 			await contract.submitTransaction('InitLedger');
-			console.log('*** Result: committed');
-
-			// Let's try a query type operation (function).
-			// This will be sent to just one peer and the results will be shown.
-			console.log('\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger');
-			let result = await contract.evaluateTransaction('GetAllAssets');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			// Now let's try to submit a transaction.
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
 			// to the orderer to be committed by each of the peer's to the channel ledger.
-			console.log('\n--> Submit Transaction: CreateAsset, creates new asset with ID, color, owner, size, and appraisedValue arguments');
-			result = await contract.submitTransaction('CreateAsset', 'asset13', 'yellow', '5', 'Tom', '1300');
-			console.log('*** Result: committed');
-			if (`${result}` !== '') {
-				console.log(`*** Result: ${prettyJSONString(result.toString())}`);
+			// let result = await contract.submitTransaction('CreateAsset', 'vp3', 'Claire', 'Johnson & Johnson', 'Bartell Drugs', '04-27-2021');
+
+			// Welcome the user
+			console.log('\nWelcome to the Vaccine Passport! \n')
+
+			// Prompt for an action from the user
+			let action = await ask('Would you like to (C)reate passport, (A)dd vaccine dose, (R)ead passport, or (E)xit? ');
+			while (action !== 'E') {
+				if (action === 'C') {
+				    // prompt for passport data
+					let newUserName = await ask('Username? ');
+					let ownerName = await ask('Passport owner name? ');
+                    let vaccineBrand = await ask('Vaccine brand? ');
+                    let vaccineSite = await ask('Vaccination site? ');
+                    let vaccineDate = await ask('Vaccination date? ');
+
+                    // create passport with given data
+                    await contract.submitTransaction('CreateAsset', newUserName, ownerName, vaccineBrand, vaccineSite, '', vaccineDate, '');
+				} else if (action === 'A') {
+					let user = await ask('Which user would you like to add a vaccine dose for? ');
+
+					// Check if the user exists in the blockchain database
+					let userExists = await contract.evaluateTransaction('AssetExists', user);
+					if (userExists.toString() === 'false') {
+						console.log("User \"" + user + "\" does not exist.\n");
+					} else {
+						let result = await contract.evaluateTransaction('ReadAsset', user);
+						let result_str = result.toString();
+
+						const kvs = result_str.split(',');
+
+						let ownerArr = kvs[1].split(":");
+						let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
+
+						let vaccineTypeArr = kvs[2].split(":");
+						let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
+
+						if (vaccineType !== "Pfizer" || vaccineType !== "Moderna") {
+							console.log(vaccineType + " only requires one dose.")
+						} else {
+							let vaccineAdminArr = kvs[3].split(":");
+							let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
+
+							let dateofFirstDoseArr = kvs[5].split(":");
+							let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+
+							let vaccineSite2 = await ask('Second vaccine site? ');
+							let vaccineDate2 = await ask('Second vaccine date? ');
+							
+							await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+						}
+					}
+				} else if (action === 'R') {
+					// Prompt the user for the username they're searching for
+					let user = await ask('Username? ');
+
+					// Check if the user exists in the blockchain database
+					let userExists = await contract.evaluateTransaction('AssetExists', user);
+					if (userExists.toString() === 'false') {
+						console.log("User \"" + user + "\" does not exist.\n");
+					} else {
+						// Return query associated with the given user, if the user exists
+						let result = await contract.evaluateTransaction('ReadAsset', user);
+						console.log(`*** Result: ${prettyJSONString(result.toString())}`);
+					}
+				} else {
+					console.log("Please enter C for create, A for add vaccine, R for read, or E for exit. \n")
+				}
+				action = await ask('(C)reate passport, (A)dd vaccine dose, (R)ead passport, or (E)xit? ');
 			}
-
-			console.log('\n--> Evaluate Transaction: ReadAsset, function returns an asset with a given assetID');
-			result = await contract.evaluateTransaction('ReadAsset', 'asset13');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
-
-			console.log('\n--> Evaluate Transaction: AssetExists, function returns "true" if an asset with given assetID exist');
-			result = await contract.evaluateTransaction('AssetExists', 'asset1');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
-
-			console.log('\n--> Submit Transaction: UpdateAsset asset1, change the appraisedValue to 350');
-			await contract.submitTransaction('UpdateAsset', 'asset1', 'blue', '5', 'Tomoko', '350');
-			console.log('*** Result: committed');
-
-			console.log('\n--> Evaluate Transaction: ReadAsset, function returns "asset1" attributes');
-			result = await contract.evaluateTransaction('ReadAsset', 'asset1');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
-
-			try {
-				// How about we try a transactions where the executing chaincode throws an error
-				// Notice how the submitTransaction will throw an error containing the error thrown by the chaincode
-				console.log('\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error');
-				await contract.submitTransaction('UpdateAsset', 'asset70', 'blue', '5', 'Tomoko', '300');
-				console.log('******** FAILED to return an error');
-			} catch (error) {
-				console.log(`*** Successfully caught the error: \n    ${error}`);
-			}
-
-			console.log('\n--> Submit Transaction: TransferAsset asset1, transfer to new owner of Tom');
-			await contract.submitTransaction('TransferAsset', 'asset1', 'Tom');
-			console.log('*** Result: committed');
-
-			console.log('\n--> Evaluate Transaction: ReadAsset, function returns "asset1" attributes');
-			result = await contract.evaluateTransaction('ReadAsset', 'asset1');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 		} finally {
 			// Disconnect from the gateway when the application is closing
 			// This will close all connections to the network
 			gateway.disconnect();
+			process.exit(1);
 		}
 	} catch (error) {
 		console.error(`******** FAILED to run the application: ${error}`);
