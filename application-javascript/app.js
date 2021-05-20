@@ -1,8 +1,4 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+// TODO: enroll admin in separate file
 
 'use strict';
 
@@ -16,7 +12,8 @@ const channelName = 'mychannel';
 const chaincodeName = 'basic';
 const mspOrg1 = 'Org1MSP';
 const walletPath = path.join(__dirname, 'wallet');
-const org1UserId = 'appUser';
+
+const ccp = buildCCPOrg1();
 
 function prettyJSONString(inputString) {
 	return JSON.stringify(JSON.parse(inputString), null, 2);
@@ -36,57 +33,96 @@ function ask(questionText) {
 	});
 }
 
-// pre-requisites:
-// - fabric-sample two organization test-network setup with two peers, ordering service,
-//   and 2 certificate authorities
-//         ===> from directory /fabric-samples/test-network
-//         ./network.sh up createChannel -ca
-// - Use any of the asset-transfer-basic chaincodes deployed on the channel "mychannel"
-//   with the chaincode name of "basic". The following deploy command will package,
-//   install, approve, and commit the javascript chaincode, all the actions it takes
-//   to deploy a chaincode to a channel.
-//         ===> from directory /fabric-samples/test-network
-//         ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript/ -ccl javascript
-// - Be sure that node.js is installed
-//         ===> from directory /fabric-samples/asset-transfer-basic/application-javascript
-//         node -v
-// - npm installed code dependencies
-//         ===> from directory /fabric-samples/asset-transfer-basic/application-javascript
-//         npm install
-// - to run this test application
-//         ===> from directory /fabric-samples/asset-transfer-basic/application-javascript
-//         node app.js
 
-// NOTE: If you see  kind an error like these:
-/*
-    2020-08-07T20:23:17.590Z - error: [DiscoveryService]: send[mychannel] - Channel:mychannel received discovery error:access denied
-    ******** FAILED to run the application: Error: DiscoveryService: mychannel error: access denied
+exports.connectToNetwork = async function (userName) {
+	const gateway = new Gateway();
+	
+	try {
+		const wallet = await buildWallet(Wallets, walletPath);
+		const userExists = await wallet.exists(userName);
+		if (!userExists) {
+			let response = {};
+			response.error = "need to register user first";
+			return response;
+		}
 
-   OR
+		await gateway.connect(ccp, {
+			wallet,
+			identity: userName,
+			discovery: { enabled: true, asLocalhost: true } // using asLocalhost as this gateway is using a fabric network deployed locally
+		});
 
-   Failed to register user : Error: fabric-ca request register failed with errors [[ { code: 20, message: 'Authentication failure' } ]]
-   ******** FAILED to run the application: Error: Identity not found in wallet: appUser
-*/
-// Delete the /fabric-samples/asset-transfer-basic/application-javascript/wallet directory
-// and retry this application.
-//
-// The certificate authority must have been restarted and the saved certificates for the
-// admin and application user are not valid. Deleting the wallet store will force these to be reset
-// with the new certificate authority.
-//
+		const network = await gateway.getNetwork(channelName);
 
-/**
- *  A test application to show basic queries operations with any of the asset-transfer-basic chaincodes
- *   -- How to submit a transaction
- *   -- How to query and check the results
- *
- * To see the SDK workings, try setting the logging to show on the console before running
- *        export HFC_LOGGING='{"debug":"console"}'
- */
+		const contract = network.getContract(chaincodeName);
+
+		let networkObj = {
+			contract: contract,
+			network: network,
+			gateway: gateway
+		};
+
+		return networkObj;
+	} catch (error) {
+		let response = {};
+		response.error = error;
+		return response;
+	} finally {
+
+	}
+};
+
+exports.readPassport = async function (networkObj, user) {
+	try {
+		// Check if the user exists in the blockchain database
+		let userExists = await contract.evaluateTransaction('AssetExists', user);
+
+		// Return query associated with the given user, if the user exists
+		let result = await contract.evaluateTransaction('ReadAsset', user);
+		console.log(`*** Result: ${prettyJSONString(result.toString())}`);	
+
+		return result;
+
+	} catch (error) {
+		console.error("User \"" + user + "\" does not exist.\n")
+		return error;
+	}
+};
+
+// TODO: Check if admin exists, register/enroll user
+exports.createPassport = async function (networkObj, passportFields) {
+	try {
+		userID = JSON.parse(passportFields[0]);
+		owner = JSON.parse(passportFields[1]);
+		vaccineBrand = JSON.parse(passportFields[2]);
+		vaccineSite = JSON.parse(passportFields[3]);
+		vaccineDate = JSON.parse(passportFields[4]);
+
+		userID = JSON.stringify(userID);
+		owner = JSON.stringify(owner);
+		vaccineBrand = JSON.stringify(vaccineBrand);
+		vaccineSite = JSON.stringify(vaccineSite);
+		vaccineDate = JSON.stringify(vaccineDate);
+		
+		let response = await contract.submitTransaction('CreateAsset', userID, owner, vaccineBrand, vaccineSite, null, vaccineDate, null);
+
+		return response;
+	} catch (error) {
+		console.error("CreatePassport failed: " + error);
+		return error;
+	}
+};
+
+
+
+
+
+
+
 async function main() {
 	try {
 		// build an in memory object with the network configuration (also known as a connection profile)
-		const ccp = buildCCPOrg1();
+		
 
 		// build an instance of the fabric ca services client based on
 		// the information in the network configuration
@@ -112,17 +148,13 @@ async function main() {
 			// The user will now be able to create connections to the fabric network and be able to
 			// submit transactions and query. All transactions submitted by this gateway will be
 			// signed by this user using the credentials stored in the wallet.
-			await gateway.connect(ccp, {
-				wallet,
-				identity: org1UserId,
-				discovery: { enabled: true, asLocalhost: true } // using asLocalhost as this gateway is using a fabric network deployed locally
-			});
+			
 
 			// Build a network instance based on the channel where the smart contract is deployed
-			const network = await gateway.getNetwork(channelName);
+			
 
 			// Get the contract from the network.
-			const contract = network.getContract(chaincodeName);
+			
 
 			// Now let's try to submit a transaction.
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
