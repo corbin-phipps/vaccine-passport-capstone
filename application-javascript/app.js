@@ -145,70 +145,12 @@ async function main() {
 				    // prompt for passport data
 					let newUserName = await ask('Username? ');
 					let ownerName = await ask('Passport owner name? ');
-					let vaccineBrand;
-					let vaccineBrandChoice = await ask('Vaccine brand? Choose one (Type the number):\n  1) Pfizer\n  2) Moderna\n  3) Johnson & Johnson\n');
-					while (vaccineBrandChoice !== '1' || vaccineBrandChoice !== '2' || vaccineBrandChoice !== '3') {
-						vaccineBrandChoice = await ask('Vaccine brand? Choose one (Type the number):\n  1) Pfizer\n  2) Moderna\n  3) Johnson & Johnson\n');
-					}
-					switch (vaccineBrandChoice) {
-						case '1':
-							vaccineBrand = 'Pfizer';
-							break;
-						case '2':
-							vaccineBrand = 'Moderna';
-							break;
-						case '3':
-							vaccineBrand = 'Johnson & Johnson';
-							break;
-					}
-					let vaccineSite = await ask('Vaccination site? ');
-					let vaccineMonth = await ask('Vaccination date? Enter month (number): ');
-					while (parseInt(vaccineMonth, 10) < 1 || parseInt(vaccineMonth, 10) > 12) {
-						vaccineMonth = await ask('Vaccination date? Enter month (number): ');
-					}
-					let maxDays;
-					switch (vaccineMonth) {
-						case '1':
-						case '01':
-						case '3':
-						case '03':
-						case '5':
-						case '05':
-						case '7':
-						case '07':
-						case '8':
-						case '08':
-						case '10':
-						case '12':
-							maxDays = 31;
-							break;
-						case '4':
-						case '04':
-						case '6':
-						case '06':
-						case '8':
-						case '08':
-						case '10':
-							maxDays = 30;
-							break;
-						case '2':
-						case '02':
-							maxDays = 28;
-							break;
-					}
-					let vaccineDays = await ask('Enter day (number): ');
-					while (parseInt(vaccineDays, 10) < 1 || parseInt(vaccineDays) > maxDays) {
-						vaccineDays	= await ask('Incorrect days for the month. Enter day (number): ');
-					}
+                    let vaccineBrand = await ask('Vaccine brand? ');
+                    let vaccineSite = await ask('Vaccination site? ');
+                    let vaccineDate = await ask('Vaccination date? ');
 
-					let vaccineYear = await ask('Enter year (number): ');
-					while (parseInt(vaccineYear, 10) < 2020) {
-						vaccineYear = await ask('Invalid year. Enter year (number): ');
-					}
-
-					let vaccineDate = vaccineMonth + '-' + vaccineDays + '-' + vaccineYear;
-					// create passport with given data
-					let newPassport = await contract.submitTransaction('CreateAsset', newUserName, ownerName, vaccineBrand, vaccineSite, vaccineDate);
+                    // create passport with given data
+                    await contract.submitTransaction('CreateAsset', newUserName, ownerName, vaccineBrand, vaccineSite, '', vaccineDate, '');
 				} else if (action === 'A') {
 					let user = await ask('Which user would you like to add a vaccine dose for? ');
 
