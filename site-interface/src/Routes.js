@@ -16,7 +16,7 @@ export default function Routes() {
       <Route exact path="/login">
         <Login />
       </Route>
-      /* sign up page */
+      /* sign up page (create passport) */
       <Route exact path="/signup">
         <Signup />
       </Route>

@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+/* The index.js file is to provide easy entry points for components. Even though they add noise, they simplify imports. */
 ReactDOM.render(
   <React.StrictMode>
     <Router>
