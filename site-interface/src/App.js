@@ -9,10 +9,29 @@ import { useHistory } from "react-router-dom";
 import { onError } from "./libs/errorLib";
 
 function App() {
+    // 1) load user session
+
+    // browser's history api
     const history = useHistory();
+    // setting to true -> start checking current authentication state of user
     const [isAuthenticating, setIsAuthenticating] = useState(true);
+
+    // updating the application state by setting that the user is logged in
+    // set false, because user not logged in yet. calling userHasAuthenticated updates it
     const [isAuthenticated, userHasAuthenticated] = useState(false);
 
+    /* The useEffect hook takes a function and an array of variables.
+    The function will be called every time the component is rendered.
+    And the array of variables tell React to only re-run our function
+    if the passed in array of variables have changed.
+    This allows us to control when our function gets run.
+
+    If we don’t pass in an array of variables, our hook gets executed everytime our component is rendered.
+    If we pass in some variables, on every render React will first check if those variables have changed,
+    before running our function.
+    If we pass in an empty list of variables, then it’ll only run our function on the FIRST render.
+    In our case, we only want to check the user’s authentication state when our app first loads.
+    So we’ll use the third option; just pass in an empty list of variables — [].*/
     useEffect(() => {
       onLoad();
     }, []);
@@ -31,15 +50,18 @@ function App() {
       setIsAuthenticating(false);
     }
 
+    /* redirects us back to the login page once the user logs out */
     async function handleLogout() {
 //      await Auth.signOut();
 
       userHasAuthenticated(false);
 
-      history.push("/login"); // redirects us back to the login page once the user logs out
+      history.push("/login");
     }
 
   return (
+  // dont render until !isAuthenticating because loading user session is asynch.
+  // this ensures app doesnt change states in the middle of init load
     !isAuthenticating && (
       <div className="App container py-3">
         <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
@@ -51,6 +73,7 @@ function App() {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Nav activeKey={window.location.pathname}>
+            // displays a Logout button once the user logs in
               {isAuthenticated ? (
                 <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
               ) : (
@@ -63,6 +86,7 @@ function App() {
                   </LinkContainer>
                 </>
               )}
+
             </Nav>
           </Navbar.Collapse>
         </Navbar>

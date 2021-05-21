@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+/* handles forms for components to use */
 export function useFormFields(initialState) {
   const [fields, setValues] = useState(initialState);
 
