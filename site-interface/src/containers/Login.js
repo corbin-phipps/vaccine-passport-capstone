@@ -40,7 +40,7 @@ export default function Login() {
     <div className="Login">
       <Form onSubmit={handleSubmit}>
         <Form.Group size="lg" controlId="username">
-          <Form.Label>username</Form.Label>
+          <Form.Label>Username</Form.Label>
           <Form.Control
             autoFocus
             type="username"
