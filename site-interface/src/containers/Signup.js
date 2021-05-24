@@ -6,7 +6,7 @@ import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Signup.css";
-//import { Auth } from "aws-amplify";
+import { Auth } from "aws-amplify";
 
 export default function Signup() {
   const [fields, handleFieldChange] = useFormFields({
@@ -38,7 +38,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-//      const newUser = await Auth.signUp({
+     const newUser = await Auth.signUp({
         username: fields.username,
         password: fields.password,
       });

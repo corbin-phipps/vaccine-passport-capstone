@@ -1,12 +1,12 @@
 import React from "react";
-import "./Home.css";
+import "./Homepage.css";
 
 export default function Home() {
   return (
     <div className="Home">
       <div className="lander">
-        <h1>Scratch</h1>
-        <p className="text-muted">example app</p>
+        <h1>Welcome to the Vaccine Passport</h1>
+        <p className="text-muted">Sign up or log in to get started.</p>
       </div>
     </div>
   );
