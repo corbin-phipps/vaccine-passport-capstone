@@ -3,7 +3,7 @@
 const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
-const { buildCAClient, registerAndEnrollUser } = require('../test-application/javascript/CAUtil.js');
+const { buildCAClient, registerAndEnrollVaxAdmin } = require('../test-application/javascript/CAUtil.js');
 const { buildCCPOrg1, buildWallet } = require('../test-application/javascript/AppUtil.js');
 
 const walletPath = path.join(__dirname, 'wallet');
@@ -46,7 +46,7 @@ async function main() {
         const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.example.com');
 
         // Register and enroll the new user
-        await registerAndEnrollUser(caClient, wallet, mspOrg1, vaccineAdministratorID, '');
+        await registerAndEnrollVaxAdmin(caClient, wallet, mspOrg1, vaccineAdministratorID, '');
     } catch (error) {
         console.error("Failed to register and enroll vaccine administrator \"" + vaccineAdministratorID + "\".");
         console.error(error);

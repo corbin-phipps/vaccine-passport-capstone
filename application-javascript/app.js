@@ -1,5 +1,3 @@
-// TODO: enroll admin in separate file
-
 'use strict';
 
 const { Gateway, Wallets } = require('fabric-network');

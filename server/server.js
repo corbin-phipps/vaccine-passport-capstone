@@ -5,6 +5,9 @@ const morgan = require('morgan');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
+const FabricCAServices = require('fabric-ca-client');
+
+const appAdmin = "admin";
 
 let network = require('../application-javascript/app.js');
 
@@ -14,10 +17,22 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/login', async (req, res) => {
-    let username = req.body.username;
-    let password = req.body.password;
+    let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
 
-    
+    const ccp = buildCCPOrg1();
+    const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.example.com');
+    const wallet = await buildWallet(Wallets, walletPath);
+
+    const adminIdentity = await wallet.get(appAdmin);
+    const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
+    const adminUser = await provider.getUserContext(adminIdentity, appAdmin);
+
+    const identityService = caClient.newIdentityService();
+
+    const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
+    console.log("user identity type: ", retrieveIdentity.result.type);
+
+    res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
 });
 
 app.get('/readPassport', async (req, res) => {
