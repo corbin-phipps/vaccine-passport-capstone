@@ -25,7 +25,7 @@ async function runTests() {
     let vaccineBrand = reqBody.vaccineBrand;
     let vaccineSite = reqBody.vaccineSite;
     let vaccineDate = reqBody.vaccineDate;
-    let passportFields = {userID, owner, vaccineBrand, vaccineSite, vaccineDate}
+    let passportFields = [userID, owner, vaccineBrand, vaccineSite, vaccineDate];
 
     let createResponse = await network.createPassport(networkObj, passportFields);
     if (createResponse.error) {
@@ -38,8 +38,11 @@ async function runTests() {
         authenticatedUser: "generalUser",
         targetUser: "userID"
     }
-    authenticatedUser = reqBody.authenticatedUser
+    authenticatedUser = reqBody.authenticatedUser;
     networkObj = await network.connectToNetwork(authenticatedUser);
+    if (networkObj.error) {
+        console.error(networkObj.error);
+    }
     let user = reqBody.targetUser;
 
     let readResponse = await network.readPassport(networkObj, user);

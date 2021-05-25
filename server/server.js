@@ -16,7 +16,7 @@ app.use(cors());
 app.get('/readPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
     let networkObj = await network.connectToNetwork(authenticatedUser);
-    
+
     let user = req.body.targetUser
     let response = await network.readPassport(networkObj, user);
     if (response.error) {
@@ -27,7 +27,7 @@ app.get('/readPassport', async (req, res) => {
 });
 
 app.post('/createPassport', async (req, res) => {
-    let authenticatedUser = req.body.authenticatedUser;
+    let authenticatedUser = req.body.authenticatedUser; // should be vaccine administrator
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
     let userID = req.body.userID;

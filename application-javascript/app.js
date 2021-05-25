@@ -28,7 +28,7 @@ exports.connectToNetwork = async function (userName) {
 		const userIdentity = await wallet.get(userName);
 		if (userIdentity == undefined) {
 			let response = {};
-			response.error = "No identity found for user \"" + userName + "\". Please register/enroll user before trying again.";
+			response.error = "No identity found for user \"" + userName + "\".\n If " + userName + " is a vaccine administrator, please run registerEnrollVaxAdmin.js.";
 			return response;
 		}
 
@@ -70,7 +70,7 @@ exports.readPassport = async function (networkObj, user) {
 		return result;
 
 	} catch (error) {
-		console.error("User \"" + user + "\" does not exist.")
+		console.error("ReadPassport failed: " + error);
 		return error;
 	}
 };
