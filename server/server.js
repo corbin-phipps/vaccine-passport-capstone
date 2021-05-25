@@ -35,7 +35,7 @@ app.post('/createPassport', async (req, res) => {
     let vaccineBrand = req.body.vaccineBrand;
     let vaccineSite = req.body.vaccineSite;
     let vaccineDate = req.body.vaccineDate;
-    let passportFields = {userID, owner, vaccineBrand, vaccineSite, vaccineDate}
+    let passportFields = [userID, owner, vaccineBrand, vaccineSite, vaccineDate];
 
     let response = await network.createPassport(networkObj, passportFields);
     if (response.error) {
