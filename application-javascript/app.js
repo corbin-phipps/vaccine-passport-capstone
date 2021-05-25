@@ -130,7 +130,11 @@ exports.createPassport = async function (networkObj, passportFields) {
 	}
 };
 
-exports.updatePassport = async function (networkObj, user) {
+exports.updatePassport = async function (networkObj, passportFields) {
+	let user = passportFields[0];
+	let vaccineSite2 = passportFields[1];
+	let vaccineDate2 = passportFields[2];
+
 	try {
 		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);
 		let result_str = result.toString();
@@ -151,9 +155,6 @@ exports.updatePassport = async function (networkObj, user) {
 
 			let dateofFirstDoseArr = kvs[5].split(":");
 			let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
-
-			let vaccineSite2 = await ask('Second vaccine site? ');
-			let vaccineDate2 = await ask('Second vaccine date? ');
 			
 			let response = await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
 			return response;

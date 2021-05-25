@@ -13,6 +13,13 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get('/login', async (req, res) => {
+    let username = req.body.username;
+    let password = req.body.password;
+
+    
+});
+
 app.get('/readPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
     let networkObj = await network.connectToNetwork(authenticatedUser);
@@ -68,8 +75,11 @@ app.post('/updatePassport', async (req, res) => {
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
     let userID = req.body.userID;
+    let vaccineSite2 = req.body.vaccineSite2;
+    let vaccineDate2 = req.body.vaccineDate2;
+    let passportFields = [userID, vaccineSite2, vaccineDate2];
 
-    let response = await network.updatePassport(networkObj, userID);
+    let response = await network.updatePassport(networkObj, passportFields);
     if (response.error) {
         res.send(response.error);
     } else {

@@ -76,16 +76,16 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 		const secret = await caClient.register({
 			affiliation: affiliation,
 			enrollmentID: userId,
-			role: 'client'
+			role: 'client',
 		}, adminUser);
 		const enrollment = await caClient.enroll({
 			enrollmentID: userId,
-			enrollmentSecret: secret
+			enrollmentSecret: secret,
 		});
 		const x509Identity = {
 			credentials: {
 				certificate: enrollment.certificate,
-				privateKey: enrollment.key.toBytes(),
+				privateKey: enrollment.key.toBytes()
 			},
 			mspId: orgMspId,
 			type: 'X.509',
