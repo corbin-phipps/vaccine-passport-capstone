@@ -5,11 +5,12 @@
 const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
-const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../test-application/javascript/CAUtil.js');
+const { buildCAClient, registerAndEnrollUser } = require('../test-application/javascript/CAUtil.js');
 const { buildCCPOrg1, buildWallet } = require('../test-application/javascript/AppUtil.js');
 
 const channelName = 'mychannel';
 const chaincodeName = 'basic';
+const appAdmin = "admin";
 const mspOrg1 = 'Org1MSP';
 const walletPath = path.join(__dirname, 'wallet');
 
@@ -19,30 +20,15 @@ function prettyJSONString(inputString) {
 	return JSON.stringify(JSON.parse(inputString), null, 2);
 }
 
-// For console input
-const readline = require('readline').createInterface({
-	input: process.stdin,
-	output: process.stdout
-});
-
-// function that promises to ask a question and 
-// resolve to its answer
-function ask(questionText) {
-	return new Promise((resolve, reject) => {
-		readline.question(questionText, (input) => resolve(input) );
-	});
-}
-
-
 exports.connectToNetwork = async function (userName) {
 	const gateway = new Gateway();
 	
 	try {
 		const wallet = await buildWallet(Wallets, walletPath);
-		const userExists = await wallet.exists(userName);
-		if (!userExists) {
+		const userIdentity = await wallet.get(userName);
+		if (userIdentity == undefined) {
 			let response = {};
-			response.error = "need to register user first";
+			response.error = "No identity found for user \"" + userName + "\". Please register/enroll user before trying again.";
 			return response;
 		}
 
@@ -75,37 +61,30 @@ exports.connectToNetwork = async function (userName) {
 exports.readPassport = async function (networkObj, user) {
 	try {
 		// Check if the user exists in the blockchain database
-		let userExists = await contract.evaluateTransaction('AssetExists', user);
+		await networkObj.contract.evaluateTransaction('AssetExists', user);
 
 		// Return query associated with the given user, if the user exists
-		let result = await contract.evaluateTransaction('ReadAsset', user);
+		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);
 		console.log(`*** Result: ${prettyJSONString(result.toString())}`);	
 
 		return result;
 
 	} catch (error) {
-		console.error("User \"" + user + "\" does not exist.\n")
+		console.error("User \"" + user + "\" does not exist.")
 		return error;
 	}
 };
 
-// TODO: Check if admin exists, register/enroll user
 exports.createPassport = async function (networkObj, passportFields) {
 	try {
 		/* Create vaccine passport asset */
-		userID = JSON.parse(passportFields[0]);
-		owner = JSON.parse(passportFields[1]);
-		vaccineBrand = JSON.parse(passportFields[2]);
-		vaccineSite = JSON.parse(passportFields[3]);
-		vaccineDate = JSON.parse(passportFields[4]);
-
-		userID = JSON.stringify(userID);
-		owner = JSON.stringify(owner);
-		vaccineBrand = JSON.stringify(vaccineBrand);
-		vaccineSite = JSON.stringify(vaccineSite);
-		vaccineDate = JSON.stringify(vaccineDate);
-		
-		await contract.submitTransaction('CreateAsset', userID, owner, vaccineBrand, vaccineSite, null, vaccineDate, null);
+		let userID = passportFields[0];
+		let owner = passportFields[1];
+		let vaccineBrand = passportFields[2];
+		let vaccineSite = passportFields[3];
+		let vaccineDate = passportFields[4];
+	
+		let passportResponse = await networkObj.contract.submitTransaction('CreateAsset', userID, owner, vaccineBrand, vaccineSite, '', vaccineDate, '');
 
 		// Disconnect from the gateway as the vaccine administrator so we can reconnect as the admin later on
 		await networkObj.gateway.disconnect();
@@ -114,18 +93,18 @@ exports.createPassport = async function (networkObj, passportFields) {
 
 		// Check if user already exists in the system
 		const wallet = await buildWallet(Wallets, walletPath);
-		const userExists = await wallet.exists(userID);
-		if (userExists) {
+		const userIdentity = await wallet.get(userID);
+		if (userIdentity != undefined) {
 			let response = {};
-			response.error = "Identity for the user: " + userID + " already exists";
+			response.error = "Identity for the user \"" + userID + "\" already exists";
 			return response;
 		}
 
 		// Check if CA admin is enrolled already
-		const adminExists = await wallet.exists(appAdmin);
-    	if (!adminExists) {
+		const adminIdentity = await wallet.get(appAdmin);
+    	if (adminIdentity == undefined) {
       		let response = {};
-      		response.error = "No identity found for admin user: " + appAdmin +  ". Run the enrollAdmin.js application before retrying";
+      		response.error = "No identity found for admin user \"" + appAdmin +  "\". Run the enrollAdmin.js application before retrying";
       		return response;
 		}
 		
@@ -142,6 +121,8 @@ exports.createPassport = async function (networkObj, passportFields) {
 
 		// Register and enroll the new user
 		await registerAndEnrollUser(caClient, wallet, mspOrg1, userID, '');
+
+		return passportResponse;
 
 	} catch (error) {
 		console.error("CreatePassport failed: " + error);
