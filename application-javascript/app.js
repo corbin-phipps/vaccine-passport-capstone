@@ -129,3 +129,36 @@ exports.createPassport = async function (networkObj, passportFields) {
 		return error;
 	}
 };
+
+exports.updatePassport = async function (networkObj, user) {
+	try {
+		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);
+		let result_str = result.toString();
+
+		const kvs = result_str.split(',');
+
+		let ownerArr = kvs[1].split(":");
+		let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
+
+		let vaccineTypeArr = kvs[2].split(":");
+		let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
+
+		if (vaccineType !== "Pfizer" || vaccineType !== "Moderna") {
+			console.log(vaccineType + " only requires one dose.")
+		} else {
+			let vaccineAdminArr = kvs[3].split(":");
+			let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
+
+			let dateofFirstDoseArr = kvs[5].split(":");
+			let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+
+			let vaccineSite2 = await ask('Second vaccine site? ');
+			let vaccineDate2 = await ask('Second vaccine date? ');
+			
+			let response = await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+			return response;
+		}
+	} catch (error) {
+		console.error("UpdatePassport failed: " + error);
+	}
+}

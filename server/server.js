@@ -20,9 +20,27 @@ app.get('/readPassport', async (req, res) => {
     let user = req.body.targetUser
     let response = await network.readPassport(networkObj, user);
     if (response.error) {
-        res.send(response.error);
+        res.send(false);
     } else {
-        res.send(response);
+        res.send(true);
+    }
+});
+
+app.get('/readOwnPassport', async (req, res) => {
+    let authenticatedUser = req.body.authenticatedUser;
+    let networkObj = await network.connectToNetwork(authenticatedUser);
+
+    let user = req.body.targetUser
+    
+    if (authenticatedUser === user) {
+        let response = await network.readPassport(networkObj, user);
+        if (response.error) {
+            res.send(response.error);
+        } else {
+            res.send(response);
+        }
+    } else {
+        res.send("Logged in user is different from target user");
     }
 });
 
@@ -38,6 +56,20 @@ app.post('/createPassport', async (req, res) => {
     let passportFields = [userID, owner, vaccineBrand, vaccineSite, vaccineDate];
 
     let response = await network.createPassport(networkObj, passportFields);
+    if (response.error) {
+        res.send(response.error);
+    } else {
+        res.send(response);
+    }
+});
+
+app.post('/updatePassport', async (req, res) => {
+    let authenticatedUser = req.body.authenticatedUser; // should be vaccine administrator
+    let networkObj = await network.connectToNetwork(authenticatedUser);
+
+    let userID = req.body.userID;
+
+    let response = await network.updatePassport(networkObj, userID);
     if (response.error) {
         res.send(response.error);
     } else {
