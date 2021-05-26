@@ -1,24 +1,24 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
-import Home from "./containers/Homepage";
+import {Route, Switch } from "react-router-dom";
+import Homepage from "./containers/Homepage";
 import NotFound from "./containers/NotFound";
 import Login from "./containers/Login";
-import Signup from "./containers/Signup";
+import Search from "./containers/Search";
 
 export default function Routes() {
   return (
     <Switch>
       /* homepage */
       <Route exact path="/">
-        <Home />
+        <Homepage />
       </Route>
       /* login page */
       <Route exact path="/login">
         <Login />
       </Route>
-      /* sign up page (create passport) */
-      <Route exact path="/signup">
-        <Signup />
+      /* search page */
+      <Route exact path="/search">
+        <Search />
       </Route>
       {/* Finally, catch all unmatched routes */}
       <Route>
