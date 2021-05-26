@@ -1,20 +1,16 @@
-//import React from "react";
-//import "./Homepage.css";
-//
-//export default function Home() {
-//  return (
-//    <div className="Home">
-//      <div className="lander">
-//        <h1>Vaccine Passport Portal</h1>
-//        <p className="text-muted"> Login to view your own passport or search to find others </p>
-//      </div>
-//      <div id="button">
-//        <a href="Login.js">Log In</a>
-//        <a href="Search.js">Search</a>
-//      </div>
-//    </div>
-//  );
-//}
+import React from "react";
+import "./Homepage.css";
+
+export default function Home() {
+  return (
+    <div className="Home">
+      <div className="lander">
+        <h1>Vaccine Passport Portal</h1>
+        <p className="text-muted"> Login to view your own passport or search to find others </p>
+      </div>
+    </div>
+  );
+}
 
 //import React from "react";
 //import "./Homepage.css";
@@ -57,22 +53,22 @@
 //            <Button variant="btn btn-success" onClick={() => history.push('/login')}>Login</Button>
 //          </form>
 
-import "./Homepage.css";
-import { BrowserRouter, Route } from 'react-router-dom'
-import React, { Component } from "react";
-import { Button } from 'react-bootstrap';
-import history from './../history';
-
-export default class Home extends Component {
-  render() {
-    return (
-      <div className="Home">
-        <div className="lander">
-          <h1>Vaccine Passport Portal</h1>
-          <p className="text-muted"> Login to view your own passport or search to find others </p>
-        </div>
-      </div>
-    );
-  }
-}
+//import "./Homepage.css";
+//import { BrowserRouter, Route } from 'react-router-dom'
+//import React, { Component } from "react";
+//import { Button } from 'react-bootstrap';
+//
+//export default class Home extends Component {
+//  render() {
+//    return (
+//      <div className="Home">
+//        <div className="lander">
+//          <h1>Vaccine Passport Portal</h1>
+//          <p className="text-muted"> Login to view your own passport or search to find others </p>
+//
+//        </div>
+//      </div>
+//    );
+//  }
+//}
 //export default Homepage;
