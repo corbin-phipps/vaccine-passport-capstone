@@ -14,10 +14,6 @@ const walletPath = path.join(__dirname, 'wallet');
 
 const ccp = buildCCPOrg1();
 
-function prettyJSONString(inputString) {
-	return JSON.stringify(JSON.parse(inputString), null, 2);
-}
-
 exports.connectToNetwork = async function (userName) {
 	const gateway = new Gateway();
 	
@@ -62,8 +58,7 @@ exports.readPassport = async function (networkObj, user) {
 		await networkObj.contract.evaluateTransaction('AssetExists', user);
 
 		// Return query associated with the given user, if the user exists
-		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);
-		console.log(`*** Result: ${prettyJSONString(result.toString())}`);	
+		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);	
 
 		return result;
 
@@ -145,8 +140,9 @@ exports.updatePassport = async function (networkObj, passportFields) {
 		let vaccineTypeArr = kvs[2].split(":");
 		let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
 
-		if (vaccineType !== "Pfizer" || vaccineType !== "Moderna") {
+		if (vaccineType !== "Pfizer" && vaccineType !== "Moderna") {
 			console.log(vaccineType + " only requires one dose.")
+			return vaccineType + " only requires one dose.";
 		} else {
 			let vaccineAdminArr = kvs[3].split(":");
 			let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
@@ -154,7 +150,7 @@ exports.updatePassport = async function (networkObj, passportFields) {
 			let dateofFirstDoseArr = kvs[5].split(":");
 			let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
 			
-			let response = await contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+			let response = await networkObj.contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
 			return response;
 		}
 	} catch (error) {
