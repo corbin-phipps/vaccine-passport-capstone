@@ -16,7 +16,7 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
 
     const ccp = buildCCPOrg1();
@@ -38,9 +38,10 @@ app.get('/login', async (req, res) => {
     }
 
     res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
+    console.log(retrieveIdentity.result.type);
 });
 
-app.get('/readPassport', async (req, res) => {
+app.post('/readPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
@@ -53,7 +54,7 @@ app.get('/readPassport', async (req, res) => {
     }
 });
 
-app.get('/readOwnPassport', async (req, res) => {
+app.post('/readOwnPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
     let networkObj = await network.connectToNetwork(authenticatedUser);
 

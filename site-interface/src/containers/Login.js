@@ -33,15 +33,33 @@ export default function Login() {
     try {
 //      await Auth.signIn(fields.username, fields.password);
       //TODO
-      const loginResponse = await fetch(`/api/login`, {
-        method: 'GET',
+      const loginResponse = await fetch('http://localhost:8081/login', {
+        method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({loginType: data})
+        body: JSON.stringify({authenticatedUser: fields.username})
+      })
+      //.then(loginResponse => loginResponse.json())
+      .then(loginResponse => {
+        console.log(loginResponse);
       });
-      loginType = loginResponse.target.loginType;
-      Session.setSessionCookie({ fields });
-      userHasAuthenticated(true);
-      history.push("/");
+  
+      if (loginResponse === 'client') {
+        Session.setSessionCookie({ fields });
+        userHasAuthenticated(true);
+        history.push("/");
+        console.log('client');
+      } else if (loginResponse === 'admin') {
+        Session.setSessionCookie({ fields });
+        userHasAuthenticated(true);
+        history.push("/");  
+        console.log('admin');
+      } else {
+        // clear form
+      }
+
+      console.log(loginResponse);
+      console.log(fields.username);
+
     } catch (e) {
       onError(e);
       setIsLoading(false);
