@@ -7,6 +7,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { AppContext } from "./libs/contextLib";
 import { useHistory } from "react-router-dom";
 import { onError } from "./libs/errorLib";
+import Cookies from "js-cookie";
 
 function App() {
     // 1) load user session
@@ -52,8 +53,9 @@ function App() {
 
     /* redirects us back to the login page once the user logs out */
     async function handleLogout() {
-//      await Auth.signOut();
 
+//TODO:      await Auth.signOut();
+      Cookies.remove("session");
       userHasAuthenticated(false);
 
       history.push("/login");
@@ -76,6 +78,9 @@ function App() {
                 <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
               ) : (
                 <>
+                    <LinkContainer to="/">
+                    <Nav.Link>Home</Nav.Link>
+                  </LinkContainer>
                   <LinkContainer to="/search">
                     <Nav.Link>Search</Nav.Link>
                   </LinkContainer>

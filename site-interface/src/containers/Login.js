@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Auth } from "aws-amplify";
+//import { Auth } from "aws-amplify";
 import Form from "react-bootstrap/Form";
 import { useHistory } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
@@ -7,6 +7,9 @@ import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
+import { createBrowserHistory } from "history";
+import Cookies from "js-cookie";
+import Session from "../sessions";
 
 export default function Login() {
   const history = useHistory();
@@ -16,6 +19,7 @@ export default function Login() {
     username: "",
     password: ""
   });
+  const loginType = "noUserLogin";
 
   function validateForm() {
     return fields.username.length > 0 && fields.password.length > 0;
@@ -27,7 +31,15 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await Auth.signIn(fields.username, fields.password);
+//      await Auth.signIn(fields.username, fields.password);
+      //TODO
+      const loginResponse = await fetch(`/api/login`, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({loginType: data})
+      });
+      loginType = loginResponse.target.loginType;
+      Session.setSessionCookie({ fields });
       userHasAuthenticated(true);
       history.push("/");
     } catch (e) {
