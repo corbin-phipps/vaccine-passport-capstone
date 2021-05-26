@@ -16,6 +16,7 @@ function prettyJSONString(inputString) {
 }
 
 async function runTests() {
+    await loginTest("nonexistent-user");
     await loginTest("vaccineAdministrator1");
     await createPassportTest();
     await readPassportTest();
@@ -46,8 +47,13 @@ async function loginTest(authUser) {
 
         const identityService = caClient.newIdentityService();
 
-        const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
-        console.log("user identity type: ", retrieveIdentity.result.type);
+        try {
+            const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
+            console.log("user identity type: ", retrieveIdentity.result.type);
+        } catch (error) {
+            console.error("No identity found for user \"" + authenticatedUser + "\"");
+        }
+
     } catch (error) {
         console.error(error);
     }

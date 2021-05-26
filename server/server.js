@@ -29,8 +29,13 @@ app.get('/login', async (req, res) => {
 
     const identityService = caClient.newIdentityService();
 
-    const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
-    console.log("user identity type: ", retrieveIdentity.result.type);
+    try {
+        const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
+        console.log("user identity type: ", retrieveIdentity.result.type);
+    } catch (error) {
+        console.error("No identity found for user \"" + authenticatedUser + "\"");
+        res.send("No identity found for user \"" + authenticatedUser + "\"");
+    }
 
     res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
 });
