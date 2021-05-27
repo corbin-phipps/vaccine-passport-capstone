@@ -40,16 +40,15 @@ export default function Login() {
         body: JSON.stringify({authenticatedUser: fields.username})
       });
 
-      //console.log(loginResponse.text());
       loginType = await loginResponse.text();
       console.log(loginType);
   
-      if (loginResponse === 'client') {
+      if (loginType === 'client') {
         Session.setSessionCookie({ fields });
         userHasAuthenticated(true);
         history.push("/");
         console.log('client');
-      } else if (loginResponse === 'admin') {
+      } else if (loginType === 'admin') {
         Session.setSessionCookie({ fields });
         userHasAuthenticated(true);
         history.push("/");  
@@ -57,9 +56,6 @@ export default function Login() {
       } else {
         // clear form
       }
-
-      //console.log(loginResponse);
-      //console.log(fields.username);
 
     } catch (e) {
       onError(e);

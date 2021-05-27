@@ -51,7 +51,8 @@ class AssetTransfer extends Contract {
             DateOfFirstDose: date,
             DateOfSecondDose: date2
         };
-        return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedAsset)));
+        ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedAsset)));
+        return JSON.stringify(updatedAsset);
     }
 
     // DeleteAsset deletes an given asset from the world state.

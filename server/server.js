@@ -53,30 +53,23 @@ app.post('/readPassport', async (req, res) => {
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
     let user = req.body.targetUser
+
     let response = await network.readPassport(networkObj, user);
-    if (response.error) {
-        res.send(false);
-    } else {
-        res.send(true);
-    }
-});
-
-app.post('/readOwnPassport', async (req, res) => {
-    let authenticatedUser = req.body.authenticatedUser;
-    let networkObj = await network.connectToNetwork(authenticatedUser);
-
-    let user = req.body.targetUser
-    
     if (authenticatedUser === user) {
-        let response = await network.readPassport(networkObj, user);
         if (response.error) {
             res.send(response.error);
         } else {
             res.send(response);
         }
     } else {
-        res.send("Logged in user is different from target user");
-    }
+        response = JSON.stringify(response);
+        console.log("Response: " + response);
+        if (response.startsWith("{\"message\":\"error")) {
+            res.send(false);
+        } else {
+            res.send(true);
+        }   
+    }   
 });
 
 app.post('/createPassport', async (req, res) => {
@@ -91,7 +84,6 @@ app.post('/createPassport', async (req, res) => {
     let passportFields = [userID, owner, vaccineBrand, vaccineSite, vaccineDate];
 
     let response = await network.createPassport(networkObj, passportFields);
-    //let responseString = "{"
     if (response.error) {
         res.send(response.error);
     } else {
@@ -107,8 +99,9 @@ app.post('/updatePassport', async (req, res) => {
     let vaccineSite2 = req.body.vaccineSite2;
     let vaccineDate2 = req.body.vaccineDate2;
     let passportFields = [userID, vaccineSite2, vaccineDate2];
-
+    
     let response = await network.updatePassport(networkObj, passportFields);
+    console.log("Response: " + response);
     if (response.error) {
         res.send(response.error);
     } else {
