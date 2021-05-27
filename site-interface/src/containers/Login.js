@@ -19,12 +19,11 @@ export default function Login() {
     username: "",
     password: ""
   });
-  const loginType = "noUserLogin";
+  let loginType = "noUserLogin";
 
   function validateForm() {
     return fields.username.length > 0 && fields.password.length > 0;
   }
-
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -41,7 +40,9 @@ export default function Login() {
         body: JSON.stringify({authenticatedUser: fields.username})
       });
 
-      console.log(loginResponse.text());
+      //console.log(loginResponse.text());
+      loginType = await loginResponse.text();
+      console.log(loginType);
   
       if (loginResponse === 'client') {
         Session.setSessionCookie({ fields });
