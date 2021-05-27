@@ -37,7 +37,7 @@ export default function Login() {
       //TODO
       const loginResponse = await fetch('http://localhost:8081/login', {
         method: 'POST',
-        headers: {'Content-Type': 'text/plain'},
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({authenticatedUser: fields.username})
       });
 

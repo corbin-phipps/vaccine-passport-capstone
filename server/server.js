@@ -24,8 +24,8 @@ app.use(express.static('public'));
 app.listen(process.env.PORT || 8081);
 
 app.post('/login', async (req, res) => {
-    console.log('hi');
     let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
+    console.log(authenticatedUser);
 
     const ccp = buildCCPOrg1();
     const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.example.com');
@@ -41,13 +41,11 @@ app.post('/login', async (req, res) => {
     try {
         retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
         console.log("user identity type: ", retrieveIdentity.result.type);
+        res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
     } catch (error) {
         console.error("No identity found for user \"" + authenticatedUser + "\"");
         res.send("No identity found for user \"" + authenticatedUser + "\"");
     }
-
-    res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
-    console.log(retrieveIdentity.result.type);
 });
 
 app.post('/readPassport', async (req, res) => {
