@@ -2,10 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
-const util = require('util');
-const path = require('path');
-const fs = require('fs');
+
+const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
+const path = require('path');
+const { buildCAClient } = require('../test-application/javascript/CAUtil.js');
+const { buildCCPOrg1, buildWallet } = require('../test-application/javascript/AppUtil.js');
+
+const walletPath = ('../application-javascript/wallet');
 
 const appAdmin = "admin";
 
@@ -15,8 +19,12 @@ const app = express();
 app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.static('public'));
+
+app.listen(process.env.PORT || 8081);
 
 app.post('/login', async (req, res) => {
+    console.log('hi');
     let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
 
     const ccp = buildCCPOrg1();
@@ -29,8 +37,9 @@ app.post('/login', async (req, res) => {
 
     const identityService = caClient.newIdentityService();
 
+    let retrieveIdentity = "";
     try {
-        const retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
+        retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
         console.log("user identity type: ", retrieveIdentity.result.type);
     } catch (error) {
         console.error("No identity found for user \"" + authenticatedUser + "\"");
@@ -84,6 +93,7 @@ app.post('/createPassport', async (req, res) => {
     let passportFields = [userID, owner, vaccineBrand, vaccineSite, vaccineDate];
 
     let response = await network.createPassport(networkObj, passportFields);
+    //let responseString = "{"
     if (response.error) {
         res.send(response.error);
     } else {
@@ -107,5 +117,3 @@ app.post('/updatePassport', async (req, res) => {
         res.send(response);
     }
 });
-
-app.listen(process.env.PORT || 8081);

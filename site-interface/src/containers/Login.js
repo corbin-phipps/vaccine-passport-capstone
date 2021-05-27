@@ -25,23 +25,23 @@ export default function Login() {
     return fields.username.length > 0 && fields.password.length > 0;
   }
 
+
   async function handleSubmit(event) {
     event.preventDefault();
 
     setIsLoading(true);
 
     try {
+      //const loginResponse = "";
 //      await Auth.signIn(fields.username, fields.password);
       //TODO
       const loginResponse = await fetch('http://localhost:8081/login', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'text/plain'},
         body: JSON.stringify({authenticatedUser: fields.username})
-      })
-      //.then(loginResponse => loginResponse.json())
-      .then(loginResponse => {
-        console.log(loginResponse);
       });
+
+      console.log(loginResponse.text());
   
       if (loginResponse === 'client') {
         Session.setSessionCookie({ fields });
@@ -57,8 +57,8 @@ export default function Login() {
         // clear form
       }
 
-      console.log(loginResponse);
-      console.log(fields.username);
+      //console.log(loginResponse);
+      //console.log(fields.username);
 
     } catch (e) {
       onError(e);
