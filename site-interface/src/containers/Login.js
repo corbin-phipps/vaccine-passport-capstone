@@ -1,55 +1,55 @@
-import React, { useState } from "react";
-//import { Auth } from "aws-amplify";
+import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import { useHistory } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
 import { useAppContext } from "../libs/contextLib";
-import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
-import { createBrowserHistory } from "history";
-import Cookies from "js-cookie";
-import Session from "../sessions";
 
 export default function Login() {
   const history = useHistory();
   const { userHasAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
-  const [fields, handleFieldChange] = useFormFields({
-    username: "",
-    password: ""
-  });
-  let loginType = "noUserLogin";
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   function validateForm() {
-    return fields.username.length > 0 && fields.password.length > 0;
+    return username.length > 0 && password.length > 0;
   }
+
+  useEffect(() => {
+    const loggedInUser = sessionStorage.getItem("username");
+    if (loggedInUser) {
+      const foundUser = loggedInUser;
+      if (foundUser !== "generalUser") {
+        setUsername(foundUser)
+      }
+    }
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     setIsLoading(true);
 
     try {
-      //const loginResponse = "";
-//      await Auth.signIn(fields.username, fields.password);
-      //TODO
       const loginResponse = await fetch('http://localhost:8081/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({authenticatedUser: fields.username})
+        body: JSON.stringify({authenticatedUser: username})
       });
 
-      loginType = await loginResponse.text();
-      console.log(loginType);
+      let loginTypeResponse = await loginResponse.text();
+      console.log(loginTypeResponse);
+      
+      sessionStorage.setItem("username", username);
+      sessionStorage.setItem("password", password);
+      sessionStorage.setItem("userType", loginTypeResponse);
   
-      if (loginType === 'client') {
-        Session.setSessionCookie({ fields });
+      if (loginTypeResponse === 'client') {
         userHasAuthenticated(true);
         history.push("/");
         console.log('client');
-      } else if (loginType === 'admin') {
-        Session.setSessionCookie({ fields });
+      } else if (loginTypeResponse === 'admin') {
         userHasAuthenticated(true);
         history.push("/");  
         console.log('admin');
@@ -62,7 +62,13 @@ export default function Login() {
       setIsLoading(false);
     }
   }
-
+  
+  /*
+  if (username) {
+    return <div>{username} is logged in</div>;
+  }
+  */
+  
   return (
     <div className="Login">
       <Form onSubmit={handleSubmit}>
@@ -71,16 +77,16 @@ export default function Login() {
           <Form.Control
             autoFocus
             type="username"
-            value={fields.username}
-            onChange={handleFieldChange}
+            value={username}
+            onChange={({ target }) => setUsername(target.value)}
           />
         </Form.Group>
         <Form.Group size="lg" controlId="password">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
-            value={fields.password}
-            onChange={handleFieldChange}
+            value={password}
+            onChange={({ target }) => setPassword(target.value)}
           />
         </Form.Group>
         <LoaderButton
@@ -95,4 +101,5 @@ export default function Login() {
       </Form>
     </div>
   );
+
 }

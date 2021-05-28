@@ -8,8 +8,6 @@ import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
 import { createBrowserHistory } from "history";
-import Cookies from "js-cookie";
-import Session from "../sessions";
 
 export default function Read() {
     const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +23,6 @@ export default function Read() {
 
     async function handleSubmit(event) {
         event.preventDefault();
-
         setIsLoading(true);
 
         try {
@@ -33,7 +30,7 @@ export default function Read() {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    authenticatedUser: "vp1",
+                    authenticatedUser: sessionStorage.getItem("username"),
                     targetUser: fields.targetUser
                 })
             });

@@ -7,7 +7,6 @@ import { LinkContainer } from "react-router-bootstrap";
 import { AppContext } from "./libs/contextLib";
 import { useHistory } from "react-router-dom";
 import { onError } from "./libs/errorLib";
-import Cookies from "js-cookie";
 
 function App() {
     // 1) load user session
@@ -39,8 +38,13 @@ function App() {
 
     async function onLoad() {
       try {
-    //    TODO await Auth.currentSession();
-        userHasAuthenticated(true);
+        const loggedInUser = sessionStorage.getItem("username");
+        if (loggedInUser) {
+          userHasAuthenticated(true);
+        } else {
+          userHasAuthenticated(false);
+          sessionStorage.setItem("username", "generalUser");
+        }
       }
       catch(e) {
         if (e !== 'No current user') {
@@ -53,60 +57,131 @@ function App() {
 
     /* redirects us back to the login page once the user logs out */
     async function handleLogout() {
-
-//TODO:      await Auth.signOut();
-      Cookies.remove("session");
       userHasAuthenticated(false);
-
       history.push("/login");
     }
 
-  return (
-  // dont render until !isAuthenticating because loading user session is asynch.
-  // this ensures app doesnt change states in the middle of init load
-    !isAuthenticating && (
-      <div className="App container py-3">
-        <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
-          <LinkContainer to="/">
-            <Navbar.Brand className="font-weight-bold text-muted">
-            </Navbar.Brand>
-          </LinkContainer>
-          <Navbar.Toggle />
-          <Navbar.Collapse className="justify-content-end">
-            <Nav activeKey={window.location.pathname}>
-              {isAuthenticated ? (
+  const loggedInUserType = sessionStorage.getItem("userType");
+
+  if (loggedInUserType === 'client') {
+    return (
+    // dont render until !isAuthenticating because loading user session is asynch.
+    // this ensures app doesnt change states in the middle of init load
+      !isAuthenticating && (
+        <div className="App container py-3">
+          <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
+            <LinkContainer to="/">
+              <Navbar.Brand className="font-weight-bold text-muted">
+              </Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Nav activeKey={window.location.pathname}>
+                {isAuthenticated ? (
+                    <>
+                      <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+                      <LinkContainer to="/">
+                        <Nav.Link>Home</Nav.Link>
+                      </LinkContainer>
+                      <LinkContainer to="/readPassport">
+                        <Nav.Link>Search</Nav.Link>
+                      </LinkContainer>
+                    </>
+                ) : (
                   <>
-                    <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
-                    <LinkContainer to="/">
-                      <Nav.Link>Home</Nav.Link>
+                    <LinkContainer to="/login">
+                      <Nav.Link>Login</Nav.Link>
+                    </LinkContainer>
+                  </>
+                )}
+
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
+            <Routes />
+          </AppContext.Provider>
+        </div>
+      )
+    );
+  } else if (loggedInUserType === 'admin') {
+    return (
+    // dont render until !isAuthenticating because loading user session is asynch.
+    // this ensures app doesnt change states in the middle of init load
+      !isAuthenticating && (
+        <div className="App container py-3">
+          <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
+            <LinkContainer to="/">
+              <Navbar.Brand className="font-weight-bold text-muted">
+              </Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Nav activeKey={window.location.pathname}>
+                {isAuthenticated ? (
+                    <>
+                      <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+                      <LinkContainer to="/">
+                        <Nav.Link>Home</Nav.Link>
+                      </LinkContainer>
+                      <LinkContainer to="/readPassport">
+                        <Nav.Link>Search</Nav.Link>
+                      </LinkContainer>
+                        <LinkContainer to="/createPassport">
+                      <Nav.Link>Create Passport</Nav.Link>
+                        </LinkContainer>
+                      <LinkContainer to="/updatePassport">
+                        <Nav.Link>Update Passport</Nav.Link>
+                      </LinkContainer>
+                    </>
+                ) : (
+                  <>
+                    <LinkContainer to="/login">
+                      <Nav.Link>Login</Nav.Link>
+                    </LinkContainer>
+                  </>
+                )}
+
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
+            <Routes />
+          </AppContext.Provider>
+        </div>
+      )
+    );
+  }
+  return (
+    // dont render until !isAuthenticating because loading user session is asynch.
+    // this ensures app doesnt change states in the middle of init load
+      !isAuthenticating && (
+        <div className="App container py-3">
+          <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
+            <LinkContainer to="/">
+              <Navbar.Brand className="font-weight-bold text-muted">
+              </Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Nav activeKey={window.location.pathname}>        
+                  <>
+                    <LinkContainer to="/login">
+                      <Nav.Link>Login</Nav.Link>
                     </LinkContainer>
                     <LinkContainer to="/readPassport">
                       <Nav.Link>Search</Nav.Link>
                     </LinkContainer>
-                      <LinkContainer to="/createPassport">
-                    <Nav.Link>Create Passport</Nav.Link>
-                      </LinkContainer>
-                    <LinkContainer to="/updatePassport">
-                      <Nav.Link>Update Passport</Nav.Link>
-                    </LinkContainer>
                   </>
-              ) : (
-                <>
-                  <LinkContainer to="/login">
-                    <Nav.Link>Login</Nav.Link>
-                  </LinkContainer>
-                </>
-              )}
-
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
-        <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
-          <Routes />
-        </AppContext.Provider>
-      </div>
-    )
-  );
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
+            <Routes />
+          </AppContext.Provider>
+        </div>
+      )
+    );
 }
 
 export default App;

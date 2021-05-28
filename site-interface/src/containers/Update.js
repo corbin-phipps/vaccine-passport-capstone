@@ -35,7 +35,7 @@ export default function Update() {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    authenticatedUser: "vaccineAdministrator1",
+                    authenticatedUser: sessionStorage.getItem("username"),
                     userID: fields.userID,
                     vaccineSite2: fields.vaccineSite2,
                     vaccineDate2: fields.vaccineDate2

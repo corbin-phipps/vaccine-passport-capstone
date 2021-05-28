@@ -37,7 +37,7 @@ export default function Create() {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    authenticatedUser: "vaccineAdministrator1",
+                    authenticatedUser: sessionStorage.getItem("username"),
                     userID: fields.userID,
                     owner: fields.owner,
                     vaccineBrand: fields.vaccineBrand,
