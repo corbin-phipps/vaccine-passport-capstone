@@ -1,12 +1,12 @@
 import React from "react";
-import * as Cookies from "js-cookie";
+import Cookies from "js-cookie";
 
-export const setSessionCookie = (session: any): void => {
+export const setSessionCookie = (session)  => {
   Cookies.remove("session");
-  Cookies.set("session", session, { expires: 14 });
+  Cookies.set("session", session);
 };
 
-export const getSessionCookie: any = () => {
+export const getSessionCookie = () => {
   const sessionCookie = Cookies.get("session");
 
   if (sessionCookie === undefined) {
