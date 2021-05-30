@@ -85,7 +85,7 @@ export default function Update() {
           block
           size="lg"
           type="submit"
-          isLoading={isLoading}
+          isLoading={false}
           disabled={!validateForm()}
         >
           Update Passport

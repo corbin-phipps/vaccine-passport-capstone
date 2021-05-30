@@ -60,7 +60,7 @@ export default function Read() {
           block
           size="lg"
           type="submit"
-          isLoading={isLoading}
+          isLoading={false}
           disabled={!validateForm()}
         >
           Read Passport

@@ -103,7 +103,7 @@ export default function Create() {
           block
           size="lg"
           type="submit"
-          isLoading={isLoading}
+          isLoading={false}
           disabled={!validateForm()}
         >
           Create Passport
