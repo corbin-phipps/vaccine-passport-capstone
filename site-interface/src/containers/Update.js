@@ -45,10 +45,49 @@ export default function Update() {
             updateResponse = await updateResponse.text();
             console.log(updateResponse);
 
+            let items = updateResponse.split(",");
+            let id = items[0].split(":")[1];
+            id = id.replace(/['"]+/g, '');
+
+            let owner = items[1].split(":")[1];
+            owner = owner.replace(/['"]+/g, '');
+
+            let vaccineBrand = items[2].split(":")[1];
+            vaccineBrand = vaccineBrand.replace(/['"]+/g, '');
+
+            let vaccinationSite = items[3].split(":")[1];
+            vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
+
+            let vaccinationSite2 = items[4].split(":")[1];
+            vaccinationSite2 = vaccinationSite2.replace(/['"]+/g, '');
+
+            let dateOfFirstDose = items[5].split(":")[1];
+            dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
+
+            let dateOfSecondDose = items[6].split(":")[1];
+            dateOfSecondDose = dateOfSecondDose.replace(/['"}]+/g, '');
+
+            let res = "User ID: " + id;
+            res += "\n" + "Owner Name: " + owner;
+            res += "\n" + "Vaccine Brand: " + vaccineBrand;
+            res += "\n" + "Vaccination Site: " + vaccinationSite;
+            if (vaccinationSite2 !== "") {
+              res += "\n" + "Second Vaccination Site: " + vaccinationSite2;
+            }
+            
+            res += "\n" + "Date of First Dose: " + dateOfFirstDose;
+
+            if (dateOfSecondDose !== "") {
+              res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
+            }
+            
+            alert(res);
+
         } catch (e) {
             onError(e);
             setIsLoading(false);
         }
+        window.location.reload(false);
     }
 
   return (

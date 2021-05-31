@@ -55,7 +55,7 @@ app.post('/readPassport', async (req, res) => {
     let user = req.body.targetUser
 
     let response = await network.readPassport(networkObj, user);
-    if (authenticatedUser === user) {
+    if (authenticatedUser === user || authenticatedUser.startsWith("vaccineAdministrator")) {
         if (response.error) {
             res.send(response.error);
         } else {

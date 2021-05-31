@@ -33,7 +33,7 @@ export default function Create() {
         setIsLoading(true);
 
         try {
-            let createResponse = await fetch('http://localhost:8081/createPassport', {
+          let createResponse = await fetch('http://localhost:8081/createPassport', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -49,10 +49,42 @@ export default function Create() {
             createResponse = await createResponse.text();
             console.log(createResponse);
 
+            if (createResponse.startsWith("Identity") || createResponse.startsWith("{\"message") ) {
+              alert("Error: Identity for the given user already exists");
+            } else {
+              let items = createResponse.split(",");
+              let id = items[0].split(":")[1];
+              id = id.replace(/['"]+/g, '');
+
+              let owner = items[1].split(":")[1];
+              owner = owner.replace(/['"]+/g, '');
+
+              let vaccineBrand = items[2].split(":")[1];
+              vaccineBrand = vaccineBrand.replace(/['"]+/g, '');
+
+              let vaccinationSite = items[3].split(":")[1];
+              vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
+
+              let dateOfFirstDose = items[5].split(":")[1];
+              dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
+              
+
+              let res = "User ID: " + id;
+            
+              res += "\n" + "Owner Name: " + owner;
+              res += "\n" + "Vaccine Brand: " + vaccineBrand;
+            
+              res += "\n" + "Vaccination Site: " + vaccinationSite;
+
+              
+              res += "\n" + "Date of First Dose: " + dateOfFirstDose;
+              alert(res);
+            }
         } catch (e) {
             onError(e);
             setIsLoading(false);
         }
+        window.location.reload(false);
     }
 
   return (
