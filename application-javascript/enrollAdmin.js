@@ -3,19 +3,27 @@
 const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
+const fs = require('fs');
 const { buildCAClient } = require('../test-application/javascript/CAUtil.js');
-const { buildCCPOrg1, buildWallet } = require('../test-application/javascript/AppUtil.js');
+const { buildWallet } = require('../test-application/javascript/AppUtil.js');
+
+const configPath = '../server/config.json';
+const configJSON = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configJSON);
+
+const ccpPath = '../server/' + config.connection_profile;
+const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
+const ccp = JSON.parse(ccpJSON);
 
 const walletPath = path.join(__dirname, 'wallet');
-const mspOrg1 = 'Org1MSP';
-const appAdmin = "admin";
-const appAdminSecret = "adminpw";
+const mspOrg = config.orgMSPID;
+const appAdmin = config.appAdmin;
+const appAdminSecret = config.appAdminSecret;
 
 async function main() {
     try {
         const wallet = await buildWallet(Wallets, walletPath);
-        const ccp = buildCCPOrg1();
-        const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.example.com');
+        const caClient = buildCAClient(FabricCAServices, ccp, config.caName);
 
         // Check to see if we've already enrolled the admin user.
         const identity = await wallet.get(appAdmin);
@@ -31,7 +39,7 @@ async function main() {
                 certificate: enrollment.certificate,
                 privateKey: enrollment.key.toBytes(),
             },
-            mspId: mspOrg1,
+            mspId: mspOrg,
             type: 'X.509',
         };
         await wallet.put(appAdmin, x509Identity);

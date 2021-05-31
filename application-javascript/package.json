@@ -12,6 +12,7 @@
     "dependencies": {
         "fabric-ca-client": "^2.2.4",
         "fabric-network": "^2.2.4",
+        "fs": "0.0.1-security",
         "pkcs11js": "^1.2.2"
     }
 }

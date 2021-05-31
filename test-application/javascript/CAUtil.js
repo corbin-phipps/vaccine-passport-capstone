@@ -6,8 +6,8 @@
 
 'use strict';
 
-const adminUserId = 'admin';
-const adminUserPasswd = 'adminpw';
+const adminUserId = 'app-admin';
+const adminUserPasswd = 'app-adminpw';
 
 /**
  *
@@ -97,7 +97,7 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 	}
 };
 
-exports.registerAndEnrollVaxAdmin = async (caClient, wallet, orgMspId, userId, affiliation) => {
+exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) => {
 	try {
 		// Check to see if we've already enrolled the user
 		const userIdentity = await wallet.get(userId);
@@ -118,16 +118,10 @@ exports.registerAndEnrollVaxAdmin = async (caClient, wallet, orgMspId, userId, a
 		const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
 
-		// Register the user, enroll the user, and import the new identity into the wallet.
-		// if affiliation is specified by client, the affiliation value must be configured in CA
-		const secret = await caClient.register({
-			affiliation: affiliation,
-			enrollmentID: userId,
-			role: 'admin',
-		}, adminUser);
+
 		const enrollment = await caClient.enroll({
 			enrollmentID: userId,
-			enrollmentSecret: secret,
+			enrollmentSecret: userSecret,
 		});
 		const x509Identity = {
 			credentials: {

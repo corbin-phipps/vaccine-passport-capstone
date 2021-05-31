@@ -6,12 +6,20 @@ const morgan = require('morgan');
 const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
+const fs = require('fs');
 const { buildCAClient } = require('../test-application/javascript/CAUtil.js');
-const { buildCCPOrg1, buildWallet } = require('../test-application/javascript/AppUtil.js');
+const { buildWallet } = require('../test-application/javascript/AppUtil.js');
 
-const walletPath = ('../application-javascript/wallet');
+const configPath = path.join(process.cwd(), './config.json');
+const configJSON = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configJSON);
+const walletPath = '../application-javascript/wallet';
 
-const appAdmin = "admin";
+const ccpPath = path.join(process.cwd(), config.connection_profile);
+const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
+const ccp = JSON.parse(ccpJSON);
+
+const appAdmin = config.appAdmin;
 
 let network = require('../application-javascript/app.js');
 
@@ -27,8 +35,7 @@ app.post('/login', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
     console.log(authenticatedUser);
 
-    const ccp = buildCCPOrg1();
-    const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.example.com');
+    const caClient = buildCAClient(FabricCAServices, ccp, config.caName);
     const wallet = await buildWallet(Wallets, walletPath);
 
     const adminIdentity = await wallet.get(appAdmin);
@@ -55,7 +62,7 @@ app.post('/readPassport', async (req, res) => {
     let user = req.body.targetUser
 
     let response = await network.readPassport(networkObj, user);
-    if (authenticatedUser === user || authenticatedUser.startsWith("vaccineAdministrator")) {
+    if (authenticatedUser === user || authenticatedUser.startsWith("vaccineAdmin")) {
         if (response.error) {
             res.send(response.error);
         } else {
