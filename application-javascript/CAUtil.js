@@ -15,6 +15,7 @@ const configPath = '../server/config.json';
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
 const AWS = require('aws-sdk');
+const { exit } = require('process');
 
 const s3 = new AWS.S3({
     accessKeyId: config.s3AccessKey,
@@ -29,9 +30,10 @@ async function s3upload(params) {
         }, function () {
             s3.putObject(params, function (err, data) {
                 if (err) {
+					console.log('error: ' + err);
                     reject(err)
                 } else {
-                    console.log('Successfully added file to S3 bucket');
+                    console.log('Successfully added file: ' + params.Key + ' to S3 bucket');
                     resolve(data);
                 }
             });
@@ -101,7 +103,6 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 
 		let fileData;
 		const identityFileName = userId + '.id';
-		// TODO: Error: ENOENT: no such file or directory, open 'wallet/person12.id'
         fs.readFile(path.join('../application-javascript', walletPath, identityFileName), 'utf8', function (err, data) {
             if (err) {
                 console.error(err);
@@ -161,7 +162,7 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
 
 		let fileData;
 		const identityFileName = userId + '.id';
-        fs.readFile(path.join(walletPath, identityFileName), 'utf8', function (err, data) {
+        fs.readFile(path.join('../application-javascript', walletPath, identityFileName), 'utf8', function (err, data) {
             if (err) {
                 console.error(err);
             } else {
@@ -170,13 +171,14 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
                     Bucket: config.s3BucketName,
                     Key: identityFileName,
                     Body: fileData
-                };
+				};
                 s3upload(params)
                 .catch(e => {
                     console.log('S3 upload error: ' + e);
 				});
             }
-        });
+		});
+		
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
 	}

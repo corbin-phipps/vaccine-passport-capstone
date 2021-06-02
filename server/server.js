@@ -73,12 +73,25 @@ app.post('/login', async (req, res) => {
     const caClient = buildCAClient(FabricCAServices, ccp, config.caName);
     const wallet = await buildWallet(Wallets, walletPath);
 
-    const identityFileName = appAdmin + '.id';
-    const params = {
+    let identityFileName = appAdmin + '.id';
+    let params = {
         Bucket: config.s3BucketName,
         Key: identityFileName
     }
-    s3download(params);
+    s3download(params)
+    .catch(e => {
+        console.log('User does not exist');
+    });
+
+    identityFileName = authenticatedUser + '.id';
+    params = {
+        Bucket: config.s3BucketName,
+        Key: identityFileName
+    }
+    s3download(params)
+    .catch(e => {
+        console.log('User does not exist');
+    });
 
     const adminIdentity = await wallet.get(appAdmin);
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);

@@ -57,7 +57,6 @@ async function main() {
         // Register and enroll the new user
         await enrollVaxAdmin(caClient, wallet, mspOrg, vaccineAdministratorID, vaccineAdministratorSecret);
 
-        exit();
     } catch (error) {
         console.error("Failed to register and enroll vaccine administrator \"" + vaccineAdministratorID + "\".");
         console.error(error);
