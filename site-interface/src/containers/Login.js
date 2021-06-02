@@ -32,7 +32,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const loginResponse = await fetch('http://localhost:8081/login', {
+      const loginResponse = await fetch('/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({authenticatedUser: username})

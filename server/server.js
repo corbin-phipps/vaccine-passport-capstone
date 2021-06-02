@@ -27,7 +27,16 @@ const app = express();
 app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static('public'));
+
+app.use(express.static('../site-interface/build'));
+app.get('/*', function (req, res) {
+    res.sendFile('../site-interface/build/index.html');
+});
+/*
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('../site-interface/build'));
+}
+*/
 
 app.listen(process.env.PORT || 8081);
 

@@ -31,7 +31,7 @@ export default function Update() {
         setIsLoading(true);
 
         try {
-            let updateResponse = await fetch('http://localhost:8081/updatePassport', {
+            let updateResponse = await fetch('/updatePassport', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({

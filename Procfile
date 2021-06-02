@@ -1,1 +1,1 @@
-web: $(cd server; npm dev run; cd ../site-interface; npm start)
+web: $(cd server; npm start; cd ../site-interface; npm run build)

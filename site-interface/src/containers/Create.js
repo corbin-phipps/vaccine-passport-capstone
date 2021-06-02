@@ -33,7 +33,7 @@ export default function Create() {
         setIsLoading(true);
 
         try {
-          let createResponse = await fetch('http://localhost:8081/createPassport', {
+          let createResponse = await fetch('/createPassport', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({

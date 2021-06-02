@@ -26,7 +26,7 @@ export default function Read() {
         setIsLoading(true);
 
         try {
-          let readResponse = await fetch('http://localhost:8081/readPassport', {
+          let readResponse = await fetch('/readPassport', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
