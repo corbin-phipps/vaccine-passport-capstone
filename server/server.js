@@ -54,7 +54,13 @@ async function s3download(params) {
                 if (err) {
                     reject(err)
                 } else {
-                    console.log('Successfully downloaded file from S3 bucket');
+                    fs.writeFile(path.join(walletPath, params.Key), data.Body, function (err) {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('Successfully downloaded file from S3 bucket');
+                        }
+                    });
                     resolve(data);
                 }
             });

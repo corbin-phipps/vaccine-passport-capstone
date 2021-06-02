@@ -81,7 +81,7 @@ async function main() {
                 const params = {
                     Bucket: config.s3BucketName,
                     Key: identityFileName,
-                    Body: JSON.stringify(fileData)
+                    Body: fileData
                 };
                 s3upload(params)
                 .catch(e => {
