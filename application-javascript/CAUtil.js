@@ -7,7 +7,39 @@
 'use strict';
 
 const adminUserId = 'app-admin';
-const adminUserPasswd = 'app-adminpw';
+const walletPath = './wallet';
+
+const path = require('path');
+const fs = require('fs');
+const configPath = '../server/config.json';
+const configJSON = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configJSON);
+const AWS = require('aws-sdk');
+
+const s3 = new AWS.S3({
+    accessKeyId: config.s3AccessKey,
+    secretAccessKey: config.s3SecretAccessKey,
+    Bucket: config.s3BucketName
+});
+
+async function s3upload(params) {
+    let promise = new Promise((resolve, reject) => {
+        s3.createBucket({
+            Bucket: config.s3BucketName
+        }, function () {
+            s3.putObject(params, function (err, data) {
+                if (err) {
+                    reject(err)
+                } else {
+                    console.log('Successfully added file to S3 bucket');
+                    resolve(data);
+                }
+            });
+        });
+    });
+
+    return await promise;
+}
 
 /**
  *
@@ -22,32 +54,6 @@ exports.buildCAClient = (FabricCAServices, ccp, caHostName) => {
 
 	console.log(`Built a CA Client named ${caInfo.caName}`);
 	return caClient;
-};
-
-exports.enrollAdmin = async (caClient, wallet, orgMspId) => {
-	try {
-		// Check to see if we've already enrolled the admin user.
-		const identity = await wallet.get(adminUserId);
-		if (identity) {
-			console.log('An identity for the admin user already exists in the wallet');
-			return;
-		}
-
-		// Enroll the admin user, and import the new identity into the wallet.
-		const enrollment = await caClient.enroll({ enrollmentID: adminUserId, enrollmentSecret: adminUserPasswd });
-		const x509Identity = {
-			credentials: {
-				certificate: enrollment.certificate,
-				privateKey: enrollment.key.toBytes(),
-			},
-			mspId: orgMspId,
-			type: 'X.509',
-		};
-		await wallet.put(adminUserId, x509Identity);
-		console.log('Successfully enrolled admin user and imported it into the wallet');
-	} catch (error) {
-		console.error(`Failed to enroll admin user : ${error}`);
-	}
 };
 
 exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affiliation) => {
@@ -133,6 +139,26 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
 		};
 		await wallet.put(userId, x509Identity);
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
+
+		let fileData;
+        const identityFileName = userId + '.id';
+        fs.readFile(path.join(walletPath, identityFileName), 'utf8', function (err, data) {
+            if (err) {
+                console.error(err);
+            } else {
+                fileData = data;
+                const params = {
+                    Bucket: config.s3BucketName,
+                    Key: identityFileName,
+                    Body: JSON.stringify(fileData)
+                };
+                s3upload(params)
+                .catch(e => {
+                    console.log('S3 upload error: ' + e);
+				});
+				console.log("hi");
+            }
+        });
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
 	}

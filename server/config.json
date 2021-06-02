@@ -4,5 +4,8 @@
     "appAdminSecret": "app-adminpw",
     "orgMSPID": "uwmcmsp",
     "caName": "159.122.174.102:30474",
-    "gatewayDiscovery": { "enabled": true, "asLocalhost": false }
+    "gatewayDiscovery": { "enabled": true, "asLocalhost": false },
+    "s3AccessKey": "AKIAZ5HFV4YVIGT2MRVN",
+    "s3SecretAccessKey": "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",
+    "s3BucketName": "uwmc-identities-wallet"
 }

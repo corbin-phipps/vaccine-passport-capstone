@@ -7,8 +7,9 @@ const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
-const { buildCAClient } = require('../test-application/javascript/CAUtil.js');
-const { buildWallet } = require('../test-application/javascript/AppUtil.js');
+const { buildCAClient } = require('../application-javascript/CAUtil.js');
+const { buildWallet } = require('../application-javascript/AppUtil.js');
+const AWS = require('aws-sdk');
 
 const configPath = path.join(process.cwd(), './config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
@@ -18,6 +19,12 @@ const walletPath = '../application-javascript/wallet';
 const ccpPath = path.join(process.cwd(), config.connection_profile);
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
+
+const s3 = new AWS.S3({
+    accessKeyId: config.s3AccessKey,
+    secretAccessKey: config.s3SecretAccessKey,
+    Bucket: config.s3BucketName
+});
 
 const appAdmin = config.appAdmin;
 
@@ -38,6 +45,25 @@ if (process.env.NODE_ENV === 'production') {
 }
 */
 
+async function s3download(params) {
+    let promise = new Promise((resolve, reject) => {
+        s3.createBucket({
+            Bucket: config.s3BucketName
+        }, function () {
+            s3.getObject(params, function (err, data) {
+                if (err) {
+                    reject(err)
+                } else {
+                    console.log('Successfully downloaded file from S3 bucket');
+                    resolve(data);
+                }
+            });
+        });
+    });
+
+    return await promise;
+}
+
 app.listen(process.env.PORT || 8081);
 
 app.post('/login', async (req, res) => {
@@ -46,6 +72,13 @@ app.post('/login', async (req, res) => {
 
     const caClient = buildCAClient(FabricCAServices, ccp, config.caName);
     const wallet = await buildWallet(Wallets, walletPath);
+
+    const identityFileName = appAdmin + '.id';
+    const params = {
+        Bucket: config.s3BucketName,
+        Key: identityFileName
+    }
+    s3download(params);
 
     const adminIdentity = await wallet.get(appAdmin);
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
