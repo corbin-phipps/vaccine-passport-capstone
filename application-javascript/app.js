@@ -41,7 +41,7 @@ async function s3download(params) {
                         if (err) {
                             console.error(err);
                         } else {
-                            console.log('Successfully downloaded file from S3 bucket');
+                            console.log('Successfully downloaded file: ' + params.Key + ' from S3 bucket');
                         }
                     });
                     resolve(data);
@@ -59,28 +59,18 @@ exports.connectToNetwork = async function (userName) {
 	try {
 		const wallet = await buildWallet(Wallets, walletPath);
 
-		const identityFileName = userName + '.id';
-		const params = {
-			Bucket: config.s3BucketName,
-			Key: identityFileName
-		}
-		s3download(params);
-
 		const userIdentity = await wallet.get(userName);
 		if (userIdentity == undefined) {
 			let response = {};
 			response.error = "No identity found for user \"" + userName + "\".\n If " + userName + " is a vaccine administrator, please run registerEnrollVaxAdmin.js.";
 			return response;
 		}
-
 		await gateway.connect(ccp, {
 			wallet,
 			identity: userName,
 			discovery: config.gatewayDiscovery
 		});
-
 		const network = await gateway.getNetwork(channelName);
-
 		const contract = network.getContract(chaincodeName);
 
 		let networkObj = {
@@ -93,6 +83,7 @@ exports.connectToNetwork = async function (userName) {
 	} catch (error) {
 		let response = {};
 		response.error = error;
+		console.error(error);
 		return response;
 	} 
 };
@@ -199,20 +190,20 @@ exports.updatePassport = async function (networkObj, passportFields) {
 
 		const kvs = result_str.split(',');
 
-		let ownerArr = kvs[1].split(":");
+		let ownerArr = kvs[3].split(":");
 		let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
 
-		let vaccineTypeArr = kvs[2].split(":");
-		let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 1);
+		let vaccineTypeArr = kvs[6].split(":");
+		let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 2); // was -1, not -2
 
 		if (vaccineType !== "Pfizer" && vaccineType !== "Moderna") {
 			console.log(vaccineType + " only requires one dose.")
 			return vaccineType + " only requires one dose.";
 		} else {
-			let vaccineAdminArr = kvs[3].split(":");
+			let vaccineAdminArr = kvs[4].split(":");
 			let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
 
-			let dateofFirstDoseArr = kvs[5].split(":");
+			let dateofFirstDoseArr = kvs[0].split(":");
 			let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
 			
 			let response = await networkObj.contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);

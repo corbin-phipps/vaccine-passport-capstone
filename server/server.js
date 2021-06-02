@@ -37,7 +37,7 @@ app.use(cors());
 
 app.use(express.static('../site-interface/build'));
 app.get('/*', function (req, res) {
-    res.sendFile(__dirname + '/../site-interface/build/index.html');
+    res.sendFile(path.resolve(__dirname + '/../site-interface/build/index.html'));
 });
 
 async function s3download(params) {
@@ -53,7 +53,7 @@ async function s3download(params) {
                         if (err) {
                             console.error(err);
                         } else {
-                            console.log('Successfully downloaded file from S3 bucket');
+                            console.log('Successfully downloaded file: ' + params.Key + ' from S3 bucket');
                         }
                     });
                     resolve(data);
@@ -68,8 +68,7 @@ async function s3download(params) {
 app.listen(process.env.PORT || 8081);
 
 app.post('/login', async (req, res) => {
-    let authenticatedUser = req.body.authenticatedUser; // technically not authenticated yet
-    console.log(authenticatedUser);
+    let authenticatedUser = req.body.authenticatedUser; 
 
     const caClient = buildCAClient(FabricCAServices, ccp, config.caName);
     const wallet = await buildWallet(Wallets, walletPath);
@@ -90,7 +89,6 @@ app.post('/login', async (req, res) => {
     let retrieveIdentity = "";
     try {
         retrieveIdentity = await identityService.getOne(authenticatedUser, adminUser);
-        console.log("user identity type: ", retrieveIdentity.result.type);
         res.send(retrieveIdentity.result.type); // either 'client' or 'admin'
     } catch (error) {
         console.error("No identity found for user \"" + authenticatedUser + "\"");
@@ -102,7 +100,7 @@ app.post('/readPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
-    let user = req.body.targetUser
+    let user = req.body.targetUser;
 
     let response = await network.readPassport(networkObj, user);
     if (authenticatedUser === user || authenticatedUser.startsWith("vaccineAdmin")) {

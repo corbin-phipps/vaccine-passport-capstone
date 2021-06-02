@@ -36,7 +36,7 @@ async function s3upload(params) {
                 if (err) {
                     reject(err)
                 } else {
-                    console.log('Successfully added file to S3 bucket');
+                    console.log('Successfully added file: ' + params.Key + ' to S3 bucket');
                     resolve(data);
                 }
             });

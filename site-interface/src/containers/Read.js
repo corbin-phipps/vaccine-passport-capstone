@@ -41,42 +41,83 @@ export default function Read() {
               alert(readResponse);
             } else {
               let items = readResponse.split(",");
-              let id = items[0].split(":")[1];
-              id = id.replace(/['"]+/g, '');
+              console.log('items: ', items);
 
-              let owner = items[1].split(":")[1];
-              owner = owner.replace(/['"]+/g, '');
+              if (items[0].split(":")[0] === "{\"DateOfFirstDose\"") { // ordered this way when reading after a create
+                let id = items[2].split(":")[1];
+                id = id.replace(/['"]+/g, '');
 
-              let vaccineBrand = items[2].split(":")[1];
-              vaccineBrand = vaccineBrand.replace(/['"]+/g, '');
+                let owner = items[3].split(":")[1];
+                owner = owner.replace(/['"]+/g, '');
 
-              let vaccinationSite = items[3].split(":")[1];
-              vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
+                let vaccineBrand = items[6].split(":")[1];
+                vaccineBrand = vaccineBrand.replace(/['"}]+/g, '');
 
-              let vaccinationSite2 = items[4].split(":")[1];
-              vaccinationSite2 = vaccinationSite2.replace(/['"]+/g, '');
+                let vaccinationSite = items[4].split(":")[1];
+                vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
 
-              let dateOfFirstDose = items[5].split(":")[1];
-              dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
+                let vaccinationSite2 = items[5].split(":")[1];
+                vaccinationSite2 = vaccinationSite2.replace(/['"]+/g, '');
 
-              let dateOfSecondDose = items[6].split(":")[1];
-              dateOfSecondDose = dateOfSecondDose.replace(/['"}]+/g, '');
+                let dateOfFirstDose = items[0].split(":")[1];
+                dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
 
-              let res = "User ID: " + id;
-              res += "\n" + "Owner Name: " + owner;
-              res += "\n" + "Vaccine Brand: " + vaccineBrand;
-              res += "\n" + "Vaccination Site: " + vaccinationSite;
-              if (vaccinationSite2 !== "") {
-                res += "\n" + "Second Vaccination Site: " + vaccinationSite2;
+                let dateOfSecondDose = items[1].split(":")[1];
+                dateOfSecondDose = dateOfSecondDose.replace(/['"}]+/g, '');
+
+                let res = "User ID: " + id;
+                res += "\n" + "Owner Name: " + owner;
+                res += "\n" + "Vaccine Brand: " + vaccineBrand;
+                res += "\n" + "Vaccination Site: " + vaccinationSite;
+                if (vaccinationSite2 !== "") {
+                  res += "\n" + "Second Vaccination Site: " + vaccinationSite2;
+                }
+                
+                res += "\n" + "Date of First Dose: " + dateOfFirstDose;
+
+                if (dateOfSecondDose !== "") {
+                  res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
+                }
+                
+                alert(res);
+              } else { // ordered this way when reading after an update
+                let id = items[0].split(":")[1];
+                id = id.replace(/['"]+/g, '');
+
+                let owner = items[1].split(":")[1];
+                owner = owner.replace(/['"]+/g, '');
+
+                let vaccineBrand = items[2].split(":")[1];
+                vaccineBrand = vaccineBrand.replace(/['"}]+/g, '');
+
+                let vaccinationSite = items[3].split(":")[1];
+                vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
+
+                let vaccinationSite2 = items[4].split(":")[1];
+                vaccinationSite2 = vaccinationSite2.replace(/['"]+/g, '');
+
+                let dateOfFirstDose = items[5].split(":")[1];
+                dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
+
+                let dateOfSecondDose = items[6].split(":")[1];
+                dateOfSecondDose = dateOfSecondDose.replace(/['"}]+/g, '');
+
+                let res = "User ID: " + id;
+                res += "\n" + "Owner Name: " + owner;
+                res += "\n" + "Vaccine Brand: " + vaccineBrand;
+                res += "\n" + "Vaccination Site: " + vaccinationSite;
+                if (vaccinationSite2 !== "") {
+                  res += "\n" + "Second Vaccination Site: " + vaccinationSite2;
+                }
+                
+                res += "\n" + "Date of First Dose: " + dateOfFirstDose;
+
+                if (dateOfSecondDose !== "") {
+                  res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
+                }
+                
+                alert(res);
               }
-              
-              res += "\n" + "Date of First Dose: " + dateOfFirstDose;
-
-              if (dateOfSecondDose !== "") {
-                res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
-              }
-              
-              alert(res);
             }
         } catch (e) {
             onError(e);

@@ -100,8 +100,9 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
 
 		let fileData;
-        const identityFileName = userId + '.id';
-        fs.readFile(path.join(walletPath, identityFileName), 'utf8', function (err, data) {
+		const identityFileName = userId + '.id';
+		// TODO: Error: ENOENT: no such file or directory, open 'wallet/person12.id'
+        fs.readFile(path.join('../application-javascript', walletPath, identityFileName), 'utf8', function (err, data) {
             if (err) {
                 console.error(err);
             } else {
@@ -109,7 +110,7 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
                 const params = {
                     Bucket: config.s3BucketName,
                     Key: identityFileName,
-                    Body: JSON.stringify(fileData)
+                    Body: fileData
                 };
                 s3upload(params)
                 .catch(e => {
@@ -143,7 +144,6 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
 		const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
 		const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
 
-
 		const enrollment = await caClient.enroll({
 			enrollmentID: userId,
 			enrollmentSecret: userSecret,
@@ -157,10 +157,10 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
 			type: 'X.509',
 		};
 		await wallet.put(userId, x509Identity);
-		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
+		console.log(`Successfully enrolled vaccine administrator ${userId} and imported it into the wallet`);
 
 		let fileData;
-        const identityFileName = userId + '.id';
+		const identityFileName = userId + '.id';
         fs.readFile(path.join(walletPath, identityFileName), 'utf8', function (err, data) {
             if (err) {
                 console.error(err);
@@ -169,7 +169,7 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
                 const params = {
                     Bucket: config.s3BucketName,
                     Key: identityFileName,
-                    Body: JSON.stringify(fileData)
+                    Body: fileData
                 };
                 s3upload(params)
                 .catch(e => {
