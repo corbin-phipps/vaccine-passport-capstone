@@ -98,6 +98,25 @@ exports.registerAndEnrollUser = async (caClient, wallet, orgMspId, userId, affil
 		};
 		await wallet.put(userId, x509Identity);
 		console.log(`Successfully registered and enrolled user ${userId} and imported it into the wallet`);
+
+		let fileData;
+        const identityFileName = userId + '.id';
+        fs.readFile(path.join(walletPath, identityFileName), 'utf8', function (err, data) {
+            if (err) {
+                console.error(err);
+            } else {
+                fileData = data;
+                const params = {
+                    Bucket: config.s3BucketName,
+                    Key: identityFileName,
+                    Body: JSON.stringify(fileData)
+                };
+                s3upload(params)
+                .catch(e => {
+                    console.log('S3 upload error: ' + e);
+				});
+            }
+        });
 	} catch (error) {
 		console.error(`Failed to register user : ${error}`);
 	}
@@ -156,7 +175,6 @@ exports.enrollVaxAdmin = async (caClient, wallet, orgMspId, userId, userSecret) 
                 .catch(e => {
                     console.log('S3 upload error: ' + e);
 				});
-				console.log("hi");
             }
         });
 	} catch (error) {

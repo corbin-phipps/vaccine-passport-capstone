@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const { buildCAClient, registerAndEnrollUser } = require('./CAUtil.js');
 const { buildWallet } = require('./AppUtil.js');
+const AWS = require('aws-sdk');
 
 const configPath = path.join(process.cwd(), './config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
@@ -15,17 +16,56 @@ const ccpPath = path.join(process.cwd(), config.connection_profile);
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
+const s3 = new AWS.S3({
+    accessKeyId: config.s3AccessKey,
+    secretAccessKey: config.s3SecretAccessKey,
+    Bucket: config.s3BucketName
+});
+
 const channelName = 'mychannel';
 const chaincodeName = 'asset-transfer-basic';
 const appAdmin = config.appAdmin;
 const mspOrg = config.orgMSPID;
 const walletPath = path.join(__dirname, 'wallet');
 
+async function s3download(params) {
+    let promise = new Promise((resolve, reject) => {
+        s3.createBucket({
+            Bucket: config.s3BucketName
+        }, function () {
+            s3.getObject(params, function (err, data) {
+                if (err) {
+                    reject(err)
+                } else {
+                    fs.writeFile(path.join(walletPath, params.Key), data.Body, function (err) {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('Successfully downloaded file from S3 bucket');
+                        }
+                    });
+                    resolve(data);
+                }
+            });
+        });
+    });
+
+    return await promise;
+}
+
 exports.connectToNetwork = async function (userName) {
 	const gateway = new Gateway();
 	
 	try {
 		const wallet = await buildWallet(Wallets, walletPath);
+
+		const identityFileName = userName + '.id';
+		const params = {
+			Bucket: config.s3BucketName,
+			Key: identityFileName
+		}
+		s3download(params);
+
 		const userIdentity = await wallet.get(userName);
 		if (userIdentity == undefined) {
 			let response = {};
@@ -54,9 +94,7 @@ exports.connectToNetwork = async function (userName) {
 		let response = {};
 		response.error = error;
 		return response;
-	} finally {
-
-	}
+	} 
 };
 
 exports.readPassport = async function (networkObj, user) {
@@ -93,6 +131,17 @@ exports.createPassport = async function (networkObj, passportFields) {
 
 		// Check if user already exists in the system
 		const wallet = await buildWallet(Wallets, walletPath);
+
+		let identityFileName = userID + '.id';
+ 		let params = {
+			Bucket: config.s3BucketName,
+			Key: identityFileName
+		}
+		s3download(params)
+		.catch(e => {
+			console.log('User does not exist confirmed');
+		});
+
 		const userIdentity = await wallet.get(userID);
 		if (userIdentity != undefined) {
 			let response = {};
@@ -100,7 +149,16 @@ exports.createPassport = async function (networkObj, passportFields) {
 			return response;
 		}
 
-		// Check if CA admin is enrolled already
+		// Check if app admin is enrolled already
+		identityFileName = appAdmin + '.id';
+		params = {
+			Bucket: config.s3BucketName,
+			Key: identityFileName
+		}
+		s3download(params)
+		.catch(e => {
+			console.log('App admin does not exist');
+		});
 		const adminIdentity = await wallet.get(appAdmin);
     	if (adminIdentity == undefined) {
       		let response = {};

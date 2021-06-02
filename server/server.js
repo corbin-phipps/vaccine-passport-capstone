@@ -37,13 +37,8 @@ app.use(cors());
 
 app.use(express.static('../site-interface/build'));
 app.get('/*', function (req, res) {
-    res.sendFile('../site-interface/build/index.html');
+    res.sendFile(__dirname + '/../site-interface/build/index.html');
 });
-/*
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('../site-interface/build'));
-}
-*/
 
 async function s3download(params) {
     let promise = new Promise((resolve, reject) => {
