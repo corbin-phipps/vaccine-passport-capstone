@@ -181,32 +181,25 @@ exports.createPassport = async function (networkObj, passportFields) {
 
 exports.updatePassport = async function (networkObj, passportFields) {
 	let user = passportFields[0];
-	let vaccineSite2 = passportFields[1];
-	let vaccineDate2 = passportFields[2];
+	let vaccinationSite2 = passportFields[1];
+	let dateOfSecondDose = passportFields[2];
 	
 	try {
 		let result = await networkObj.contract.evaluateTransaction('ReadAsset', user);
 		let result_str = result.toString();
+		let kvs = result_str.split(',');
+		kvs = JSON.parse(kvs);
 
-		const kvs = result_str.split(',');
-
-		let ownerArr = kvs[3].split(":");
-		let owner = ownerArr[1].substring(1, ownerArr[1].length - 1);
-
-		let vaccineTypeArr = kvs[6].split(":");
-		let vaccineType = vaccineTypeArr[1].substring(1, vaccineTypeArr[1].length - 2); // was -1, not -2
-
-		if (vaccineType !== "Pfizer" && vaccineType !== "Moderna") {
-			console.log(vaccineType + " only requires one dose.")
-			return vaccineType + " only requires one dose.";
+		let owner = kvs["Owner"];
+		let vaccineBrand = kvs["VaccineBrand"];
+		if (vaccineBrand !== "Pfizer" && vaccineBrand !== "Moderna") {
+			console.log(vaccineBrand + " only requires one dose.")
+			return vaccineBrand + " only requires one dose.";
 		} else {
-			let vaccineAdminArr = kvs[4].split(":");
-			let vaccineAdmin = vaccineAdminArr[1].substring(1, vaccineAdminArr[1].length - 1);
-
-			let dateofFirstDoseArr = kvs[0].split(":");
-			let dateofFirstDose = dateofFirstDoseArr[1].substring(1, dateofFirstDoseArr[1].length - 1);
+			let vaccinationSite = kvs["VaccinationSite"];
+			let dateofFirstDose = kvs["DateOfFirstDose"];
 			
-			let response = await networkObj.contract.submitTransaction('UpdateAsset', user, owner, vaccineType, vaccineAdmin, vaccineSite2, dateofFirstDose, vaccineDate2);
+			let response = await networkObj.contract.submitTransaction('UpdateAsset', user, owner, vaccineBrand, vaccinationSite, vaccinationSite2, dateofFirstDose, dateOfSecondDose);
 			
 			return response;
 		}

@@ -125,7 +125,7 @@ app.post('/readPassport', async (req, res) => {
     } else {
         response = JSON.stringify(response);
         console.log("Response: " + response);
-        if (response.startsWith("{\"message\":\"error")) {
+        if (response.startsWith("{\"status\":500")) {
             res.send(false);
         } else {
             res.send(true);
