@@ -111,12 +111,13 @@ app.post('/login', async (req, res) => {
 
 app.post('/readPassport', async (req, res) => {
     let authenticatedUser = req.body.authenticatedUser;
+    let authenticatedUserType = req.body.authenticatedUserType;
     let networkObj = await network.connectToNetwork(authenticatedUser);
 
     let user = req.body.targetUser;
 
     let response = await network.readPassport(networkObj, user);
-    if (authenticatedUser === user || authenticatedUser.startsWith("vaccineAdmin")) {
+    if (authenticatedUser === user || authenticatedUserType === "admin") {
         if (response.error) {
             res.send(response.error);
         } else {

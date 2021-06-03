@@ -28,6 +28,7 @@ export default function Read() {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     authenticatedUser: sessionStorage.getItem("username"),
+                    authenticatedUserType: sessionStorage.getItem("userType"),
                     targetUser: fields.targetUser
                 })
             });

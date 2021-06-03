@@ -44,6 +44,7 @@ function App() {
         } else {
           userHasAuthenticated(false);
           sessionStorage.setItem("username", "generalUser");
+          sessionStorage.setItem("userType", "client");
         }
       }
       catch(e) {
@@ -91,6 +92,9 @@ function App() {
                   <>
                     <LinkContainer to="/login">
                       <Nav.Link>Login</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/readPassport">
+                      <Nav.Link>Search</Nav.Link>
                     </LinkContainer>
                   </>
                 )}

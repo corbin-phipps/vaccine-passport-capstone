@@ -4,8 +4,8 @@ const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
-const { buildCAClient, registerAndEnrollUser } = require('../test-application/javascript/CAUtil.js');
-const { buildWallet } = require('../test-application/javascript/AppUtil.js');
+const { buildCAClient, registerAndEnrollUser } = require('./CAUtil.js');
+const { buildWallet } = require('./AppUtil.js');
 
 const configPath = '../server/config.json';
 const configJSON = fs.readFileSync(configPath, 'utf8');
