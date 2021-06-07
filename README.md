@@ -12,52 +12,36 @@ In a terminal, enter the code directory
 `cd vaccine-passport-capstone`
 
 
-Navigate to the test network directory
+For the first time only, run the setup script to install some dependencies, enroll the admin users, and register/enroll the general user
 
-`cd test-network`
+`./setup.sh`
 
 
-Run this command to shut down old network, start up fresh new network
+For each time that you want to run the program, run the start script to build the frontend and start the server
 
 `./start.sh`
 
 
-In a separate terminal, navigate to the application code directory
+Visit the site in your browser
 
-`cd application-javascript`
-
-
-Run the application
-
-`node app.js`
+`http://localhost:8081`
 
 
-## Running Demo with Multiple Nodes
+## About the App
 
-Open 3 terminals (network admin, peer0.org1, peer0.org2)
+In the initial logged-out state, you are interacting with the system from the perspective of `generalUser`.
 
-
-In the network admin terminal, start up network
-
-`cd test-network`
-`./start.sh`
+When logged-in, you will be either a `client` or an `admin`:
+* `client` users can search for other people's vaccine passports. If searching for their own, they will see the entire passport. If searching for someone else, they will see either "'user' has been vaccinated", or "no passport found for user: 'user'"
+* `admin` users can search for people's vaccine passports and see all of the fields, as well as create a new passport or update someone's existing passport
 
 
-In the peer0.org1 terminal, run this command to set up the environment
+## Noteable code files and directories
 
-`source terminalorg1`
+The backend application code can be found in `application-javascript`, specifically in `app.js`. `AppUtil.js` and `CAUtil.js` are helper files. `enrollAdmin.js`, `enrollVaxAdmin.js`, and `registerEnrollGeneralUser.js` are ran only once in the `setup.sh` script.
 
+The chaincode (smart contract) can be found in `chaincode-javascript/lib/assetTransfer.js`.
 
-In the peer0.org2 terminal, run this command to set up the environment
+The backend server code can be found in `server`, specifically `server.js`. The connection profile that handles the connection to the blockchain network in IBM Cloud is in `uwmcmsp_profile.json`, and the other configuration information is in `config.json`.
 
-`source terminalorg2`
-
-
-To invoke chaincode functions from either peer terminals, run the following command
-
-`peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls true --cafile $ORDERER_CA -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["ReadAsset", "vp1"]}'`
-
-
-Edit the end of the previous command to invoke other chaincode functions with different arguments, such as
-
-`{"Args":["CreateAsset", "vp1", "Alice", "Pfizer", "qfc", "05/04/2021"]}`
+Lastly, the frontend code can be found in `site-interface/src`. The main app code is in `App.js`, the routes are listed in `Routes.js` and defined by their page containers in `containers`, where the logic for the four routes are found in `Login.js`, `Read.js`, `Create.js`, and `Update.js`.

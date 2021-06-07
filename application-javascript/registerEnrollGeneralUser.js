@@ -4,8 +4,9 @@ const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
-const { buildCAClient, registerAndEnrollUser } = require('./CAUtil.js');
+const { buildCAClient, registerAndEnrollUser, readIdentity, uploadIdentity } = require('./CAUtil.js');
 const { buildWallet } = require('./AppUtil.js');
+const { exit } = require('process');
 
 const configPath = '../server/config.json';
 const configJSON = fs.readFileSync(configPath, 'utf8');
@@ -49,6 +50,9 @@ async function main() {
 
         // Register and enroll the new user
         await registerAndEnrollUser(caClient, wallet, mspOrg, genUserID, '');
+        let params = await readIdentity(genUserID);
+        await uploadIdentity(params);
+        exit();
     } catch (error) {
         console.error("Failed to register and enroll the general user \"" + genUserID + "\".");
         console.error(error);
