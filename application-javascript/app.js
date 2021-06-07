@@ -4,7 +4,7 @@ const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
-const { buildCAClient, registerAndEnrollUser } = require('./CAUtil.js');
+const { buildCAClient, registerAndEnrollUser, readIdentity, uploadIdentity } = require('./CAUtil.js');
 const { buildWallet, s3download } = require('./AppUtil.js');
 
 const configPath = path.join(process.cwd(), './config.json');
@@ -145,9 +145,10 @@ exports.createPassport = async function (networkObj, passportFields) {
 
 		// Register and enroll the new user
 		await registerAndEnrollUser(caClient, wallet, mspOrg, userID, '');
-
+		params = await readIdentity(userID);
+		await uploadIdentity(params);
+		
 		return passportResponse;
-
 	} catch (error) {
 		console.error("CreatePassport failed: " + error);
 		return error;
