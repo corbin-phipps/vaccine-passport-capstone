@@ -1,18 +1,11 @@
-import React, { useState } from "react";
-//import { Auth } from "aws-amplify";
+import React from "react";
 import Form from "react-bootstrap/Form";
-import { useHistory } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
-import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
-import { createBrowserHistory } from "history";
-import Cookies from "js-cookie";
-import Session from "../sessions";
 
 export default function Create() {
-    const [isLoading, setIsLoading] = useState(false);
     const [fields, handleFieldChange] = useFormFields({
         authenticatedUser: "",
         userID: "",
@@ -22,15 +15,10 @@ export default function Create() {
         vaccineDate: ""
     });
 
-    // TODO
-    function validateForm() {
-        return true;
-    }
-
+    // Sends request to the createPassport route in the server, with the create passport form fields as the request body.
+    // Parses the server response and displays the returned passport fields to the screen (currently as an alert)
     async function handleSubmit(event) {
         event.preventDefault();
-
-        setIsLoading(true);
 
         try {
           let createResponse = await fetch('/createPassport', {
@@ -49,40 +37,30 @@ export default function Create() {
             createResponse = await createResponse.text();
             console.log(createResponse);
 
+            // Parse the server response
             if (createResponse.startsWith("Identity") || createResponse.startsWith("{\"message") ) {
               alert("Error: Identity for the given user already exists");
             } else {
               let items = createResponse.split(",");
-              let id = items[0].split(":")[1];
-              id = id.replace(/['"]+/g, '');
+              items = JSON.parse(items);
+              console.log('items: ', items);
 
-              let owner = items[1].split(":")[1];
-              owner = owner.replace(/['"]+/g, '');
-
-              let vaccineBrand = items[2].split(":")[1];
-              vaccineBrand = vaccineBrand.replace(/['"]+/g, '');
-
-              let vaccinationSite = items[3].split(":")[1];
-              vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
-
-              let dateOfFirstDose = items[5].split(":")[1];
-              dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
+              let id = items["ID"];
+              let owner = items["Owner"];
+              let vaccineBrand = items["VaccineBrand"];
+              let vaccinationSite = items["VaccinationSite"];
+              let dateOfFirstDose = items["DateOfFirstDose"];
               
-
-              let res = "User ID: " + id;
-            
+              // Create the alert for displaying the parsed passport fields
+              let res = "User ID: " + id;    
               res += "\n" + "Owner Name: " + owner;
               res += "\n" + "Vaccine Brand: " + vaccineBrand;
-            
-              res += "\n" + "Vaccination Site: " + vaccinationSite;
-
-              
+              res += "\n" + "Vaccination Site: " + vaccinationSite;        
               res += "\n" + "Date of First Dose: " + dateOfFirstDose;
               alert(res);
             }
         } catch (e) {
             onError(e);
-            setIsLoading(false);
         }
         window.location.reload(false);
     }
@@ -135,8 +113,6 @@ export default function Create() {
           block
           size="lg"
           type="submit"
-          isLoading={false}
-          disabled={!validateForm()}
         >
           Create Passport
         </LoaderButton>

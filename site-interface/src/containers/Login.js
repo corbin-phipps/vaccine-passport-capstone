@@ -9,14 +9,15 @@ import "./Login.css";
 export default function Login() {
   const history = useHistory();
   const { userHasAuthenticated } = useAppContext();
-  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // Validates form by ensuring that a username and passport are given
   function validateForm() {
     return username.length > 0 && password.length > 0;
   }
 
+  // Looks in session storage to see if already logged in as a user. If so, sets state username to that found username
   useEffect(() => {
     const loggedInUser = sessionStorage.getItem("username");
     if (loggedInUser) {
@@ -27,9 +28,10 @@ export default function Login() {
     }
   }, []);
 
+  // Sends request to the login route in the server, with the logged-in user's username as the request body.
+  // Parses the server response (identity type for that user) and sets the session storage userType (either 'client' or 'admin')
   async function handleSubmit(event) {
     event.preventDefault();
-    setIsLoading(true);
 
     try {
       const loginResponse = await fetch('/login', {
@@ -53,21 +55,11 @@ export default function Login() {
         userHasAuthenticated(true);
         history.push("/");  
         console.log('admin');
-      } else {
-        // clear form
       }
-
     } catch (e) {
       onError(e);
-      setIsLoading(false);
     }
   }
-  
-  /*
-  if (username) {
-    return <div>{username} is logged in</div>;
-  }
-  */
   
   return (
     <div className="Login">
@@ -93,7 +85,6 @@ export default function Login() {
           block
           size="lg"
           type="submit"
-          isLoading={false}
           disabled={!validateForm()}
         >
           Login

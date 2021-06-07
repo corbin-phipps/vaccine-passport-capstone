@@ -29,7 +29,7 @@ Visit the site in your browser
 
 ## About the App
 
-In the initial logged-out state, you are interacting with the system from the perspective of `generalUser`.
+In the initial logged-out state, you are interacting with the system from the perspective of `generalUser`. This allows you only to search for other people's vaccine passports, or log in.
 
 When logged-in, you will be either a `client` or an `admin`:
 * `client` users can search for other people's vaccine passports. If searching for their own, they will see the entire passport. If searching for someone else, they will see either "'user' has been vaccinated", or "no passport found for user: 'user'"

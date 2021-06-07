@@ -9,8 +9,6 @@ import { useHistory } from "react-router-dom";
 import { onError } from "./libs/errorLib";
 
 function App() {
-    // 1) load user session
-
     // browser's history api
     const history = useHistory();
     // setting to true -> start checking current authentication state of user
@@ -36,6 +34,7 @@ function App() {
       onLoad();
     }, []);
 
+    // Checks if logged-in by checking session storage for a username. If not logged-in, set session storage user to 'generalUser'
     async function onLoad() {
       try {
         const loggedInUser = sessionStorage.getItem("username");
@@ -56,7 +55,7 @@ function App() {
       setIsAuthenticating(false);
     }
 
-    /* redirects us back to the login page once the user logs out */
+    // Redirect to login page when user logs out
     async function handleLogout() {
       userHasAuthenticated(false);
       history.push("/login");
@@ -64,6 +63,7 @@ function App() {
 
   const loggedInUserType = sessionStorage.getItem("userType");
 
+  // Render different JSX code depending on the identity type of the user logged-in
   if (loggedInUserType === 'client') {
     return (
     // dont render until !isAuthenticating because loading user session is asynch.

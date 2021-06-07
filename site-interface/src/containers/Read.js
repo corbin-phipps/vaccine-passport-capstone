@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-//import { Auth } from "aws-amplify";
+import React from "react";
 import Form from "react-bootstrap/Form";
 import LoaderButton from "../components/LoaderButton";
 import { useFormFields } from "../libs/hooksLib";
@@ -7,20 +6,15 @@ import { onError } from "../libs/errorLib";
 import "./Login.css";
 
 export default function Read() {
-    const [isLoading, setIsLoading] = useState(false);
     const [fields, handleFieldChange] = useFormFields({
         authenticatedUser: "",
         targetUser: ""
     });
 
-    // TODO: input validation
-    function validateForm() {
-        return true;
-    }
-
+    // Sends request to the readPassport route in the server, with the logged-in user and identity type taken from the session storage as the request body.
+    // Parses the server response and displays either the full passport (if invoked by an admin), or a yes/no type of validation message to the screen (currently as an alert)
     async function handleSubmit(event) {
         event.preventDefault();
-        setIsLoading(true);
 
         try {
           let readResponse = await fetch('/readPassport', {
@@ -35,6 +29,8 @@ export default function Read() {
 
             readResponse = await readResponse.text();
 
+            // Parse the server response. If "true", display a positive validation message. If "false", display a negative validation message.
+            // Otherwise, display all passport fields to the screen
             if (readResponse === "true") {
               alert(fields.targetUser + " has been vaccinated");
             } else if (readResponse === "false") {
@@ -52,6 +48,7 @@ export default function Read() {
               let dateOfFirstDose = items["DateOfFirstDose"];
               let dateOfSecondDose = items["DateOfSecondDose"];
 
+              // Create the alert for displaying vaccine passport to the screen
               let res = "User ID: " + id;
               res += "\n" + "Owner Name: " + owner;
               res += "\n" + "Vaccine Brand: " + vaccineBrand;
@@ -64,15 +61,12 @@ export default function Read() {
 
               if (dateOfSecondDose !== "") {
                 res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
-              }
-              
+              }           
               alert(res);
             }
         } catch (e) {
             onError(e);
-            setIsLoading(false);
         }
-
     }
 
   return (
@@ -91,8 +85,6 @@ export default function Read() {
           block
           size="lg"
           type="submit"
-          isLoading={false}
-          disabled={!validateForm()}
         >
           Read Passport
         </LoaderButton>

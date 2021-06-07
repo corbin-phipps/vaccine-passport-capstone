@@ -10,23 +10,23 @@ import Update from "./containers/Update";
 export default function Routes() {
   return (
     <Switch>
-      /* homepage */
+      {/* homepage */}
       <Route exact path="/">
         <Homepage />
       </Route>
-      /* login page */
+      {/* login page */}
       <Route exact path="/login">
         <Login />
       </Route>
-      /* create page */
+      {/* create page */}
       <Route exact path="/createPassport">
         <Create />
       </Route>
-      /* search page */
+      {/* search page */}
       <Route exact path="/readPassport">
         <Read />
       </Route>
-      /* update page */
+      {/* update page */}
       <Route exact path="/updatePassport">
         <Update />
       </Route>

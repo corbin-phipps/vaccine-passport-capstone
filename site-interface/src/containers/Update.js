@@ -1,18 +1,11 @@
-import React, { useState } from "react";
-//import { Auth } from "aws-amplify";
+import React from "react";
 import Form from "react-bootstrap/Form";
-import { useHistory } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
-import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
-import { createBrowserHistory } from "history";
-import Cookies from "js-cookie";
-import Session from "../sessions";
 
 export default function Update() {
-    const [isLoading, setIsLoading] = useState(false);
     const [fields, handleFieldChange] = useFormFields({
         authenticatedUser: "",
         userID: "",
@@ -20,15 +13,10 @@ export default function Update() {
         vaccineDate2: ""
     });
 
-    // TODO
-    function validateForm() {
-        return true;
-    }
-
+    // Sends request to the updatePassport route in the server, with the logged-in user and second dose fields as the request body.
+    // Parses the server response and displays the full updated passport to the screen (currently as an alert)
     async function handleSubmit(event) {
         event.preventDefault();
-
-        setIsLoading(true);
 
         try {
             let updateResponse = await fetch('/updatePassport', {
@@ -46,27 +34,18 @@ export default function Update() {
             console.log(updateResponse);
 
             let items = updateResponse.split(",");
-            let id = items[0].split(":")[1];
-            id = id.replace(/['"]+/g, '');
+            items = JSON.parse(items);
+            console.log('items: ', items);
 
-            let owner = items[1].split(":")[1];
-            owner = owner.replace(/['"]+/g, '');
+            let id = items["ID"];
+            let owner = items["Owner"];
+            let vaccineBrand = items["VaccineBrand"];
+            let vaccinationSite = items["VaccinationSite"];
+            let vaccinationSite2 = items["VaccinationSite2"];
+            let dateOfFirstDose = items["DateOfFirstDose"];
+            let dateOfSecondDose = items["DateOfSecondDose"];
 
-            let vaccineBrand = items[2].split(":")[1];
-            vaccineBrand = vaccineBrand.replace(/['"]+/g, '');
-
-            let vaccinationSite = items[3].split(":")[1];
-            vaccinationSite = vaccinationSite.replace(/['"]+/g, '');
-
-            let vaccinationSite2 = items[4].split(":")[1];
-            vaccinationSite2 = vaccinationSite2.replace(/['"]+/g, '');
-
-            let dateOfFirstDose = items[5].split(":")[1];
-            dateOfFirstDose = dateOfFirstDose.replace(/['"]+/g, '');
-
-            let dateOfSecondDose = items[6].split(":")[1];
-            dateOfSecondDose = dateOfSecondDose.replace(/['"}]+/g, '');
-
+            // Create the alert for displaying the updated passport to the screen
             let res = "User ID: " + id;
             res += "\n" + "Owner Name: " + owner;
             res += "\n" + "Vaccine Brand: " + vaccineBrand;
@@ -80,12 +59,9 @@ export default function Update() {
             if (dateOfSecondDose !== "") {
               res += "\n" + "Date of Second Dose: " + dateOfSecondDose;
             }
-            
             alert(res);
-
         } catch (e) {
             onError(e);
-            setIsLoading(false);
         }
         window.location.reload(false);
     }
@@ -124,8 +100,6 @@ export default function Update() {
           block
           size="lg"
           type="submit"
-          isLoading={false}
-          disabled={!validateForm()}
         >
           Update Passport
         </LoaderButton>
